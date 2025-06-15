@@ -1,8 +1,7 @@
 # LubriERP
 
 LubriERP es un sistema ERP completo desarrollado con Django para la gestión integral de un **lubricentro**. Permite el control eficiente de ventas de aceites, repuestos, servicios, clientes, vehículos, pedidos, pagos y más.
-
-
+![Vista de productos](https://github.com/kair069/lubriERP/blob/main/Productos.JPG?raw=true)
 
 
 ## 🧩 Funcionalidades principales
