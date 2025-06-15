@@ -1,0 +1,23 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Crear Marca{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Crear Marca</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.as_p }}
+                    </div>
+                    <button type="submit" class="btn btn-success">Crear</button>
+                    <a href="{% url 'listar_marcas' %}" class="btn btn-secondary">Volver</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}📦 Lista de Pedidos{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg">
+    <div class="card-header text-white" style="background: linear-gradient(45deg, #007bff, #0056b3);">
+      <h2 class="mb-0"><i class="fas fa-list"></i> Lista de Pedidos</h2>
+    </div>
+    <div class="card-body">
+      <div class="mb-3 text-right">
+        <a href="{% url 'pedido_create' %}" class="btn btn-success btn-lg shadow">
+          <i class="fas fa-plus-circle"></i> Nuevo Pedido
+        </a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+          <thead class="bg-dark text-white">
+            <tr>
+              <th>ID</th>
+              <th>Proveedor</th>
+              <th>📅 Fecha de Pedido</th>
+              <th>💰 Estado de Pago</th>
+              <th>💵 Costo Total</th>
+              <th>⚙️ Acciones</th>
+            </tr>
+          </thead>
+<tbody>
+  {% for pedido in pedidos %}
+  <tr class="align-middle">
+    <td><strong>#{{ pedido.id }}</strong></td>
+    <td>🏢 {{ pedido.proveedor }}</td>
+    <td>📅 {{ pedido.fecha_pedido|date:"d M, Y" }}</td>
+    <td>
+      {% if pedido.estado_pago == "pendiente" %}
+          <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half"></i> Pendiente</span>
+      {% elif pedido.estado_pago == "procesado" %}
+          <span class="badge bg-info text-dark"><i class="fas fa-sync-alt"></i> Procesado</span>
+      {% elif pedido.estado_pago == "pagado" %}
+          <span class="badge bg-success text-white"><i class="fas fa-check-circle"></i> Pagado</span>
+      {% else %}
+          <span class="badge bg-secondary text-white"><i class="fas fa-question-circle"></i> {{ pedido.estado_pago }}</span>
+      {% endif %}
+    </td>
+    <td><strong>💲{{ pedido.costo_total|floatformat:2 }}</strong></td>
+    <td>
+      <div class="btn-group" role="group">
+        <a href="{% url 'pedido_combined_detail' pedido.id %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
+          <i class="fas fa-eye"></i>
+        </a>
+        <a href="{% url 'pedido_update' pedido.id %}" class="btn btn-sm btn-outline-warning" title="Editar Pedido">
+          <i class="fas fa-edit"></i>
+        </a>
+        <a href="{% url 'pedido_delete' pedido.id %}" class="btn btn-sm btn-outline-danger" title="Eliminar Pedido">
+          <i class="fas fa-trash-alt"></i>
+        </a>
+      </div>
+    </td>
+  </tr>
+  {% empty %}
+  <tr>
+    <td colspan="6" class="text-center text-muted">
+      <i class="fas fa-box-open fa-2x"></i>
+      <p class="mt-2">📭 No hay pedidos registrados.</p>
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+
+<style>
+  tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .btn-group .btn {
+    margin-right: 5px;
+  }
+
+  .badge {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+</style>
+
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .btn:hover {
+    transform: scale(1.05);
+    transition: 0.3s ease-in-out;
+  }
+</style>
+
+{% endblock %}

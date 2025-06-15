@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de inventario y gestión para repuestos automotrices">
+    <title>{% block title %}AutoPartes Pro{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2037/2037190.png" type="image/png">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
+
+    <style>
+        :root {
+            --primary: #1e88e5;
+            --primary-dark: #1565c0;
+            --secondary: #0d47a1;
+            --success: #00b894;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --light: #f8f9fa;
+            --dark: #2d3436;
+            --gray: #636e72;
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 70px;
+            --sidebar-bg: linear-gradient(135deg, #1e3c72, #2a5298);
+            --content-transition: 0.3s ease-in-out;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.95rem;
+            background-color: #f5f7fc;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            color: #4b4b4b;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6, .app-name, .top-bar-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+        }
+
+        /* Sidebar Styles */
+        .sidebar-wrapper {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            transition: all var(--content-transition);
+            z-index: 1000;
+        }
+
+        .sidebar {
+            height: 100%;
+            background: var(--sidebar-bg);
+            overflow-y: auto;
+            padding: 0;
+            transition: all var(--content-transition);
+            box-shadow: var(--box-shadow);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar-header {
+            padding: 25px 15px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .app-name {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .app-logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .app-version {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.75rem;
+            margin: 5px 0 0;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-collapse-btn {
+            display: none;
+            position: absolute;
+            right: -15px;
+            top: 20px;
+            background: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            color: var(--primary);
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu-item {
+            position: relative;
+            margin: 3px 10px;
+            animation: fadeIn 0.5s ease-out forwards;
+            animation-delay: calc(0.05s * var(--i));
+            opacity: 0;
+        }
+
+        .sidebar-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: all 0.2s ease-in-out;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;
+        }
+
+        .sidebar-menu-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background-color: white;
+            transform: scaleY(0);
+            transition: transform 0.2s, opacity 0.2s;
+            opacity: 0;
+            transform-origin: bottom;
+        }
+
+        .sidebar-menu-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu-link:hover::before {
+            transform: scaleY(1);
+            opacity: 1;
+        }
+
+        .sidebar-menu-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar-menu-link.active::before {
+            transform: scaleY(1);
+            opacity: 1;
+        }
+
+        .sidebar-menu-icon {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .sidebar-dropdown {
+            margin: 3px 10px;
+            animation: fadeIn 0.5s ease-out forwards;
+            animation-delay: calc(0.05s * var(--i));
+            opacity: 0;
+        }
+
+        .sidebar-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(0, 128, 0, 0.6);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: all 0.2s ease-in-out;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .sidebar-dropdown-toggle:hover {
+            background-color: rgba(0, 128, 0, 0.8);
+        }
+
+        .sidebar-dropdown-toggle.active {
+            background-color: rgba(0, 128, 0, 0.8);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-dropdown-toggle .sidebar-menu-icon {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .sidebar-dropdown-menu {
+            list-style: none;
+            padding: 5px 0 5px 30px;
+            margin-top: 2px;
+            background-color: rgba(0, 0, 0, 0.15);
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        .sidebar-dropdown-menu.show {
+            display: block;
+        }
+
+        .sidebar-dropdown-item {
+            margin: 5px 0;
+        }
+
+        .sidebar-dropdown-link {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 5px;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .sidebar-dropdown-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-dropdown-icon {
+            margin-right: 8px;
+            font-size: 0.9rem;
+            width: 16px;
+            text-align: center;
+        }
+
+        /* User Profile Section */
+        .user-profile {
+            padding: 15px;
+            margin: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            margin-top: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-right: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .user-role {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            margin: 3px 0 0;
+        }
+
+        /* Content Area Styles */
+        .content-wrapper {
+            margin-left: var(--sidebar-width);
+            transition: margin-left var(--content-transition);
+            min-height: 100vh;
+            padding: 0px;
+            position: relative;
+        }
+
+        .top-bar {
+            background-color: white;
+            padding: 15px 25px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.04);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .toggle-sidebar {
+            cursor: pointer;
+            color: var(--dark);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .toggle-sidebar:hover {
+            color: var(--primary);
+        }
+
+        .top-bar-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-bell {
+            color: var(--dark);
+            margin-right: 5px;
+            font-size: 1.1rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notification-bell:hover {
+            color: var(--primary);
+        }
+
+        .notification-indicator {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: var(--danger);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-content {
+            padding: 0 25px 25px;
+        }
+
+        .content-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateX(-20px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Chatbot Styles */
+        #chatbot-button {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1.5rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(30, 136, 229, 0.3);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        #chatbot-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(30, 136, 229, 0.4);
+        }
+
+        #chatbot-container {
+            position: fixed;
+            bottom: 95px;
+            right: 25px;
+            width: 350px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        #chatbot-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        #chatbot-messages {
+            padding: 15px;
+            height: 320px;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .chat-message {
+            margin-bottom: 12px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .user-message {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .bot-message {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            padding: 12px 15px;
+            border-radius: 18px;
+            max-width: 75%;
+            line-height: 1.4;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-bubble {
+            background-color: var(--primary);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-bubble {
+            background-color: #f0f2f5;
+            color: var(--dark);
+            border-bottom-left-radius: 5px;
+        }
+
+        #chatbot-input-area {
+            display: flex;
+            padding: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        #chatbot-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        #chatbot-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+        }
+
+        #chatbot-send-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #chatbot-send-btn:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            :root {
+                --sidebar-width: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-wrapper {
+                transform: translateX(-100%);
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .sidebar-wrapper.show {
+                transform: translateX(0);
+            }
+
+            .content-wrapper {
+                margin-left: 0;
+            }
+
+            .content-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+
+            .content-overlay.show {
+                display: block;
+            }
+            
+            #chatbot-container {
+                width: calc(100% - 50px);
+                bottom: 75px;
+            }
+        }
+
+        /* Collapsed Sidebar Styles (for larger screens with toggle) */
+        @media (min-width: 769px) {
+            body.sidebar-collapsed .sidebar-wrapper {
+                width: var(--sidebar-collapsed-width);
+            }
+            
+            body.sidebar-collapsed .sidebar-menu-text,
+            body.sidebar-collapsed .user-info,
+            body.sidebar-collapsed .app-version,
+            body.sidebar-collapsed .sidebar-dropdown-menu {
+                display: none;
+            }
+            
+            body.sidebar-collapsed .app-name {
+                font-size: 0;
+            }
+            
+            body.sidebar-collapsed .app-name::first-letter {
+                font-size: 1.6rem;
+            }
+            
+            body.sidebar-collapsed .sidebar-collapse-btn {
+                transform: rotate(180deg);
+            }
+            
+            body.sidebar-collapsed .content-wrapper {
+                margin-left: var(--sidebar-collapsed-width);
+            }
+            
+            body.sidebar-collapsed .sidebar-menu-link {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            body.sidebar-collapsed .sidebar-menu-icon {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+            
+            body.sidebar-collapsed .sidebar-dropdown-toggle {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            body.sidebar-collapsed .dropdown-arrow {
+                display: none;
+            }
+            
+            /* Tooltip for collapsed sidebar */
+            body.sidebar-collapsed .sidebar-menu-link {
+                position: relative;
+            }
+            
+            body.sidebar-collapsed .sidebar-menu-link::after,
+            body.sidebar-collapsed .sidebar-dropdown-toggle::after {
+                content: attr(data-title);
+                position: absolute;
+                left: 100%;
+                top: 50%;
+                transform: translateY(-50%);
+                background-color: #2d3436;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 5px;
+                font-size: 0.8rem;
+                white-space: nowrap;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s;
+                z-index: 100;
+                margin-left: 10px;
+            }
+            
+            body.sidebar-collapsed .sidebar-menu-link:hover::after,
+            body.sidebar-collapsed .sidebar-dropdown-toggle:hover::after {
+                opacity: 1;
+            }
+            
+            body.sidebar-collapsed .user-avatar {
+                margin-right: 0;
+            }
+        }
+
+        /* Custom component styles */
+        .producto-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .producto-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .sticky-top {
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+        }
+
+        .btn {
+            border-radius: 6px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            padding: 0.45rem 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(30, 136, 229, 0.2);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background-color: #00a382;
+            border-color: #00a382;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 184, 148, 0.2);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #d63031;
+            border-color: #d63031;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(30, 136, 229, 0.15);
+        }
+
+        .btn-agregar, .btn-eliminar {
+            transition: all 0.2s ease;
+        }
+
+        .btn-agregar:hover, .btn-eliminar:hover {
+            transform: scale(1.05);
+        }
+
+        .form-control, .form-select {
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #e0e0e0;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+        }
+
+        .select2-container--default .select2-selection--single {
+            border-radius: 6px;
+            height: 38px;
+            border: 1px solid #e0e0e0;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .select2-container--default .select2-selection--single:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 38px;
+            padding-left: 12px;
+            color: #4b4b4b;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 6px 12px;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: var(--primary);
+        }
+
+        .cantidad-control {
+            width: 100px;
+            margin: 0 auto;
+        }
+
+        .cantidad-control input {
+            text-align: center;
+            padding: 0.1rem;
+            border-radius: 4px;
+        }
+
+        .cantidad-input {
+            width: 40px !important;
+            padding: 0 !important;
+            text-align: center;
+            border: 1px solid #e0e0e0 !important;
+        }
+
+        .card {
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: rgba(0, 0, 0, 0.02);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            padding: 15px 20px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .table {
+            --bs-table-striped-bg: rgba(0, 0, 0, 0.02);
+        }
+
+        .table th {
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        .pagination .page-item .page-link {
+            color: var(--primary);
+            border-color: #e0e0e0;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+            border-radius: 4px;
+        }
+
+        .badge-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .badge-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .badge-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        @keyframes highlight {
+            0% { background-color: rgba(0, 184, 148, 0.1); }
+            100% { background-color: transparent; }
+        }
+
+        .highlight {
+            animation: highlight 1.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .sticky-top {
+                position: relative;
+                top: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .cantidad-control {
+                width: 80px;
+            }
+        }
+        
+        /* Typing indicator animation */
+        .dot-typing {
+            position: relative;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: var(--dark);
+            animation: dotTyping 1.5s infinite linear;
+        }
+
+        .dot-typing::before,
+        .dot-typing::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: var(--dark);
+            animation: dotTyping 1.5s infinite linear;
+        }
+
+        .dot-typing::before {
+            left: -8px;
+            animation-delay: 0s;
+        }
+
+        .dot-typing::after {
+            left: 8px;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes dotTyping {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar-wrapper">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="app-name">
+                    <i class="fas fa-car-alt app-logo"></i>
+                    AutoPartes
+                </h1>
+                <p class="app-version">versión 2.1</p>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item" style="--i:1;">
+                    <a href="{% url 'home' %}" class="sidebar-menu-link" data-title="Inicio">
+                        <span class="sidebar-menu-icon"><i class="fas fa-home"></i></span>
+                        <span class="sidebar-menu-text">Inicio</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:2;">
+                    <a href="{% url 'about' %}" class="sidebar-menu-link" data-title="Sobre Nosotros">
+                        <span class="sidebar-menu-icon"><i class="fas fa-info-circle"></i></span>
+                        <span class="sidebar-menu-text">Sobre Nosotros</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:3;">
+                    <a href="{% url 'listar_marcas' %}" class="sidebar-menu-link" data-title="Marcas">
+                        <span class="sidebar-menu-icon"><i class="fas fa-tag"></i></span>
+                        <span class="sidebar-menu-text">Marcas</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:4;">
+                    <a href="{% url 'listar_categorias' %}" class="sidebar-menu-link" data-title="Categorías">
+                        <span class="sidebar-menu-icon"><i class="fas fa-th-list"></i></span>
+                        <span class="sidebar-menu-text">Categorías</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:5;">
+                    <a href="{% url 'listar_tipos_motor' %}" class="sidebar-menu-link" data-title="Tipo de Motor">
+                        <span class="sidebar-menu-icon"><i class="fas fa-engine"></i></span>
+                        <span class="sidebar-menu-text">Tipo de Motor</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-dropdown" style="--i:6;">
+                    <div class="sidebar-dropdown-toggle" data-title="Inventario">
+                        <div>
+                            <span class="sidebar-menu-icon"><i class="fas fa-boxes"></i></span>
+                            <span class="sidebar-menu-text">Inventario</span>
+                        </div>
+                        <span class="dropdown-arrow"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <ul class="sidebar-dropdown-menu">
+                        <li class="sidebar-dropdown-item">
+                            <a href="{% url 'chatbot_page' %}" class="sidebar-dropdown-link">
+                                <span class="sidebar-dropdown-icon">🤖</span>
+                                <span>Chatbot</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-dropdown-item">
+                            <a href="{% url 'listar_productos' %}" class="sidebar-dropdown-link">
+                                <span class="sidebar-dropdown-icon">📦</span>
+                                <span>Productos</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-dropdown-item">
+                            <a href="{% url 'stock_por_producto' %}" class="sidebar-dropdown-link">
+                                <span class="sidebar-dropdown-icon">📊</span>
+                                <span>Estadística</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-dropdown-item">
+                            <a href="{% url 'calculadora_productos' %}" class="sidebar-dropdown-link">
+                                <span class="sidebar-dropdown-icon">🧮</span>
+                                <span>Calculadora</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:7;">
+                    <a href="{% url 'pedido_list' %}" class="sidebar-menu-link" data-title="Pedidos">
+                        <span class="sidebar-menu-icon"><i class="fas fa-shipping-fast"></i></span>
+                        <span class="sidebar-menu-text">Pedidos</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:8;">
+                    <a href="{% url 'lista_clientes' %}" class="sidebar-menu-link" data-title="Clientes">
+                        <span class="sidebar-menu-icon"><i class="fas fa-user-friends"></i></span>
+                        <span class="sidebar-menu-text">Clientes</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item" style="--i:8;">
+                    <a href="{% url 'listado_de_clientes' %}" class="sidebar-menu-link" data-title="Clientes">
+                        <span class="sidebar-menu-icon"><i class="fas fa-user-friends"></i></span>
+                        <span class="sidebar-menu-text">Clientes Manual</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:9;">
+                    <a href="{% url 'listar_proveedores' %}" class="sidebar-menu-link" data-title="Proveedores">
+                        <span class="sidebar-menu-icon"><i class="fas fa-truck-loading"></i></span>
+                        <span class="sidebar-menu-text">Proveedores</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:10;">
+                    <a href="{% url 'listar_compras' %}" class="sidebar-menu-link" data-title="Compras">
+                        <span class="sidebar-menu-icon"><i class="fas fa-shopping-cart"></i></span>
+                        <span class="sidebar-menu-text">Compras</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:11;">
+                    <a href="{% url 'listar_ventas' %}" class="sidebar-menu-link" data-title="Ventas">
+                        <span class="sidebar-menu-icon"><i class="fas fa-file-invoice-dollar"></i></span>
+                        <span class="sidebar-menu-text">Ventas</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:12;">
+                    <a href="{% url 'listar_tipos_documento' %}" class="sidebar-menu-link" data-title="Documentos">
+                        <span class="sidebar-menu-icon"><i class="fas fa-file-contract"></i></span>
+                        <span class="sidebar-menu-text">Tipo de Documento</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:13;">
+                    <a href="{% url 'calculadora' %}" class="sidebar-menu-link" data-title="Calculadora">
+                        <span class="sidebar-menu-icon"><i class="fas fa-calculator"></i></span>
+                        <span class="sidebar-menu-text">Calculadora</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item" style="--i:14;">
+                    <a href="{% url 'stock_por_producto' %}" class="sidebar-menu-link" data-title="Stock">
+                        <span class="sidebar-menu-icon"><i class="fas fa-chart-line"></i></span>
+                        <span class="sidebar-menu-text">Stock</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- User Profile -->
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-info">
+                    <h4 class="user-name">Administrador</h4>
+                    <p class="user-role">Acceso Total</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-wrapper">
+        <div class="top-bar">
+            <div class="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </div>
+            <h1 class="top-bar-title">{% block page_title %}Panel de Control{% endblock %}</h1>
+            <div class="user-actions">
+                <div class="notification-bell">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-indicator">3</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-overlay"></div>
+
+        <div class="main-content">
+            <div class="content-container">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div id="chatbot-button" onclick="toggleChat()">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <div id="chatbot-container">
+        <div id="chatbot-header">
+            <span><i class="fas fa-robot mr-2"></i> Asistente Virtual</span>
+            <span onclick="toggleChat()" style="cursor:pointer;"><i class="fas fa-times"></i></span>
+        </div>
+        <div id="chatbot-messages"></div>
+        <div id="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="Escribe tu pregunta..." onkeypress="handleKeyPress(event)">
+            <button id="chatbot-send-btn" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dropdown toggle functionality
+            const dropdownToggles = document.querySelectorAll('.sidebar-dropdown-toggle');
+            
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const dropdownMenu = this.nextElementSibling;
+                    dropdownMenu.classList.toggle('show');
+                    
+                    // Change arrow direction
+                    const arrow = this.querySelector('.dropdown-arrow i');
+                    if (arrow) {
+                        arrow.classList.toggle('fa-chevron-down');
+                        arrow.classList.toggle('fa-chevron-up');
+                    }
+                });
+            });
+            
+            // Toggle sidebar for mobile
+            const toggleBtn = document.querySelector('.toggle-sidebar');
+            const sidebarWrapper = document.querySelector('.sidebar-wrapper');
+            const contentOverlay = document.querySelector('.content-overlay');
+            
+            toggleBtn.addEventListener('click', function() {
+                sidebarWrapper.classList.toggle('show');
+                contentOverlay.classList.toggle('show');
+            });
+            
+            contentOverlay.addEventListener('click', function() {
+                sidebarWrapper.classList.remove('show');
+                contentOverlay.classList.remove('show');
+            });
+            
+            // Collapse sidebar for desktop
+            const collapseBtn = document.querySelector('.sidebar-collapse-btn');
+            
+            if (collapseBtn) {
+                collapseBtn.addEventListener('click', function() {
+                    document.body.classList.toggle('sidebar-collapsed');
+                });
+            }
+            
+            // Add active class to current page link
+            const currentLocation = window.location.pathname;
+            const menuLinks = document.querySelectorAll('.sidebar-menu-link, .sidebar-dropdown-link');
+            
+            menuLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    
+                    // If it's a dropdown item, open the dropdown
+                    const dropdownItem = link.closest('.sidebar-dropdown-item');
+                    if (dropdownItem) {
+                        const dropdown = dropdownItem.parentElement.previousElementSibling;
+                        dropdown.click();
+                    }
+                }
+            });
+        });
+        
+        // Chatbot functionality
+        function toggleChat() {
+            const chatContainer = document.getElementById("chatbot-container");
+            chatContainer.style.display = chatContainer.style.display === "flex" ? "none" : "flex";
+            if (chatContainer.style.display === "flex") {
+                document.getElementById("chatbot-input").focus();
+                
+                // Mostrar mensaje de bienvenida si no hay mensajes
+                if (document.getElementById("chatbot-messages").children.length === 0) {
+                    setTimeout(() => {
+                        addMessageToChat('bot', "👋 ¡Hola! Soy el asistente virtual de AutoPartes. ¿En qué puedo ayudarte hoy?");
+                    }, 500);
+                }
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const inputField = document.getElementById("chatbot-input");
+            const message = inputField.value.trim();
+            if (message === "") return;
+
+            // Add user message to chat
+            addMessageToChat('user', message);
+
+            // Clear input
+            inputField.value = "";
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Send message to API
+            fetch("/api/chatbot/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ pregunta: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove typing indicator
+                removeTypingIndicator();
+                
+                // Add bot response to chat
+                addMessageToChat('bot', data.respuesta);
+            })
+            .catch(error => {
+                // Remove typing indicator
+                removeTypingIndicator();
+                
+                // Show error message
+                addMessageToChat('bot', "😕 Lo siento, ocurrió un error al procesar tu solicitud. Por favor, intenta nuevamente más tarde.");
+                console.error("Error:", error);
+            });
+        }
+
+        function addMessageToChat(sender, message) {
+            const chatMessages = document.getElementById("chatbot-messages");
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}-message`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `message-bubble ${sender}-bubble`;
+            
+            // Procesamiento básico de emojis y formatos
+            message = processMessage(message);
+            
+            bubble.innerHTML = message;
+            
+            messageDiv.appendChild(bubble);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function processMessage(message) {
+            // Convertir URLs en enlaces clicables
+            message = message.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            
+            // Destacar puntos clave con negrita
+            message = message.replace(/\*([^*]+)\*/g, '<strong>$1</strong>');
+            
+            return message;
+        }
+
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById("chatbot-messages");
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-message bot-message typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="message-bubble bot-bubble" style="display: flex; align-items: center;">
+                    <span style="margin-right: 8px;">Escribiendo</span>
+                    <span class="dot-typing"></span>
+                </div>
+            `;
+            typingDiv.id = 'typing-indicator';
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+    </script>
+</body>
+</html>

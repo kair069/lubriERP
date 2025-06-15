@@ -1,0 +1,416 @@
+{% extends 'mi_app/base.html' %}
+
+{% load static %}
+
+{% block title %}Detalles de Venta #{{ venta.numero_documento }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-header {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        border-left: 5px solid #4a6fdc;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    
+    .product-card {
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+    
+    .product-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        transform: translateY(-5px);
+    }
+    
+    .product-image {
+        height: 150px;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .product-image img {
+        max-height: 130px;
+        max-width: 90%;
+        object-fit: contain;
+    }
+    
+    .summary-card {
+        position: sticky;
+        top: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: none;
+    }
+    
+    .summary-card .card-header {
+        background-color: #4a6fdc;
+        color: white;
+        padding: 15px 20px;
+    }
+    
+    .action-buttons {
+        padding: 20px 0;
+    }
+    
+    .btn {
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-weight: 500;
+    }
+    
+    .btn-primary {
+        background-color: #4a6fdc;
+        border-color: #3f5fc5;
+    }
+    
+    .btn-primary:hover {
+        background-color: #3f5fc5;
+        border-color: #3452b0;
+    }
+    
+    .btn-success {
+        background-color: #28a745;
+        border-color: #218838;
+    }
+    
+    .total-badge {
+        background: #28a745;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+    }
+    
+    .product-detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #eee;
+    }
+    
+    .product-detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .product-metadata {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .product-metadata i {
+        margin-right: 5px;
+        font-size: 0.8rem;
+    }
+    
+    .subtotal {
+        background-color: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-weight: bold;
+        color: #28a745;
+        margin-top: 10px;
+        display: inline-block;
+    }
+    
+    .venta-info {
+        font-size: 1.05rem;
+        color: #495057;
+    }
+    
+    .venta-info strong {
+        color: #212529;
+    }
+    
+    .badge-document {
+        background-color: #17a2b8;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        margin-left: 10px;
+    }
+    
+    .section-title {
+        position: relative;
+        margin-bottom: 25px;
+        padding-bottom: 12px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background-color: #4a6fdc;
+    }
+    
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        padding: 15px 20px;
+    }
+    
+    .list-group-item:first-child {
+        border-top: none;
+    }
+    
+    .list-group-item:last-child {
+        border-bottom: none;
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+    
+    .product-quantity {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #e9ecef;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        margin-right: 8px;
+    }
+    
+    .product-price {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #e7f5ff;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        color: #0d6efd;
+    }
+    
+    .no-products {
+        text-align: center;
+        padding: 40px 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .no-products i {
+        font-size: 3rem;
+        color: #adb5bd;
+        margin-bottom: 15px;
+    }
+    
+    /* Estilos para los botones de acción del producto */
+    .product-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+    }
+    
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 0.875rem;
+    }
+    
+    .btn-edit {
+        background-color: #4a6fdc;
+        color: white;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-edit:hover {
+        background-color: #3f5fc5;
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-delete:hover {
+        background-color: #c82333;
+        transform: translateY(-2px);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="detail-header">
+        <div class="row">
+            <div class="col-md-8">
+                <h3 class="mb-3">Detalles de Venta #{{ venta.numero_documento }}</h3>
+                <div class="venta-info">
+                    <p class="mb-2">
+                        <i class="fas fa-user me-2"></i> Cliente: 
+                        <strong>{{ venta.cliente_nombre }}</strong>
+                    </p>
+                    <p class="mb-2">
+                        <i class="fas fa-file-alt me-2"></i> Documento: 
+                        <strong>{{ venta.tipo_documento.tipo_documento }}</strong>
+                        <span class="badge-document">{{ venta.numero_documento }}</span>
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i> Fecha: 
+                        <strong>{{ venta.fecha_venta|date:"d/m/Y H:i" }}</strong>
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 text-end d-flex align-items-center justify-content-end">
+                <span class="total-badge">
+                    <i class="fas fa-tag me-2"></i> Total: S/ {{ venta.total_venta }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <h4 class="section-title">Productos vendidos ({{ detalles.count }})</h4>
+            
+            {% if detalles %}
+                <div class="row">
+                    {% for detalle in detalles %}
+                        <div class="col-md-6">
+                            <div class="card product-card">
+                                <div class="product-image">
+                                    {% if detalle.producto.imagen_url %}
+                                        <img src="{{ detalle.producto.imagen_url }}" alt="{{ detalle.producto.nombre_producto }}" class="img-fluid">
+                                    {% else %}
+                                        <i class="fas fa-box fa-3x text-muted"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ detalle.producto.nombre_producto }}</h5>
+                                    <div class="product-metadata">
+                                        <i class="fas fa-tag"></i>
+                                        {{ detalle.producto.marca.nombre_marca }} - 
+                                        {{ detalle.producto.categoria.nombre_categoria }}
+                                    </div>
+                                    
+                                    <div class="product-detail-row mt-3">
+                                        <span class="product-quantity">
+                                            <i class="fas fa-shopping-basket me-1"></i> {{ detalle.cantidad }} unidades
+                                        </span>
+                                        <span class="product-price">
+                                            <i class="fas fa-money-bill-wave me-1"></i> S/ {{ detalle.precio_unitario }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="text-end mt-3">
+                                        <span class="subtotal">
+                                            Subtotal: S/ {{ detalle.subtotal }}
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Botones de acción para el detalle -->
+                                    <div class="product-actions">
+                                        <a href="{% url 'editar_detalle_venta' detalle_id=detalle.id %}" class="btn btn-sm btn-edit">
+                                            <i class="fas fa-edit me-1"></i> Editar
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-delete" data-bs-toggle="modal" data-bs-target="#eliminarModal{{ detalle.id }}">
+                                            <i class="fas fa-trash me-1"></i> Eliminar
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Modal de confirmación para eliminar -->
+                                    <div class="modal fade" id="eliminarModal{{ detalle.id }}" tabindex="-1" aria-labelledby="eliminarModalLabel{{ detalle.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="eliminarModalLabel{{ detalle.id }}">Confirmar eliminación</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>¿Está seguro que desea eliminar <strong>{{ detalle.producto.nombre_producto }}</strong> de esta venta?</p>
+                                                    <p class="text-danger"><small>Esta acción no se puede deshacer.</small></p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <form method="POST" action="{% url 'eliminar_detalle_venta' detalle_id=detalle.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-products">
+                    <i class="fas fa-shopping-basket"></i>
+                    <h5>No hay productos en esta venta</h5>
+                    <p class="text-muted">Utiliza el botón "Agregar más productos" para comenzar</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card summary-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-receipt me-2"></i> Resumen de Venta</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-box me-2"></i> Tipos de productos</span>
+                            <strong>{{ detalles.count }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-shopping-cart me-2"></i> Artículos totales</span>
+                            <strong>
+                                {% with total_items=0 %}
+                                    {% for detalle in detalles %}
+                                        {% with total_items=total_items|add:detalle.cantidad %}{% endwith %}
+                                    {% endfor %}
+                                    {{ total_items }}
+                                {% endwith %}
+                            </strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-dollar-sign me-2"></i> Total</span>
+                            <strong>S/ {{ venta.total_venta }}</strong>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-white">
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'agregar_detalle_venta' venta_id=venta.id %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i> Agregar más productos
+                        </a>
+                        {% if detalles %}
+                            <a href="{% url 'imprimir_venta_html' venta_id=venta.id %}" class="btn btn-success" target="_blank">
+                                <i class="fas fa-print me-2"></i> Imprimir comprobante
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'listar_ventas' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Volver a ventas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

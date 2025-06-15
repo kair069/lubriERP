@@ -1,0 +1,46 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}{% if object %}Editar Arbitrio{% else %}Nuevo Arbitrio{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-header bg-success text-white">
+      <h3>{% if object %}✏️ Editar Arbitrio{% else %}➕ Nuevo Arbitrio{% endif %}</h3>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          <label class="form-label">🏛️ Municipio</label>
+          {{ form.municipio }}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">💰 Monto Pagado</label>
+          <div class="input-group">
+            <span class="input-group-text">S/</span>
+            {{ form.monto }}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">📅 Fecha de Pago</label>
+          {{ form.fecha_pago }}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">📌 Estado</label>
+          {{ form.estado }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> {% if object %}Actualizar{% else %}Guardar{% endif %}
+        </button>
+        <a href="{% url 'arbitrios_lista' %}" class="btn btn-secondary">❌ Cancelar</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

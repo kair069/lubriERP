@@ -1,0 +1,121 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Filtro de Productos por nombre -->
+    <div class="mb-4">
+        <form method="get" action="{% url 'calculadora' %}">
+            <label for="nombreProducto">Buscar Producto:</label>
+            <input type="text" id="nombreProducto" name="nombre" class="form-control" placeholder="Ingresa nombre del producto" value="{{ nombre_producto }}">
+            <button type="submit" class="btn btn-primary mt-2">Buscar</button>
+        </form>
+    </div>
+
+    <!-- Filtro por categoría -->
+    <div class="mb-4">
+        <form method="get" action="{% url 'calculadora' %}">
+            <label for="categoria">Selecciona Categoría:</label>
+            <select id="categoria" name="categoria" class="form-control">
+                <option value="">Todas</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}" {% if categoria.id == categoria_id %}selected{% endif %}>{{ categoria.nombre }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary mt-2">Filtrar</button>
+        </form>
+    </div>
+
+    <!-- Botón para desfiltrar -->
+    <div class="mb-4">
+        <form method="get" action="{% url 'calculadora' %}">
+            <input type="hidden" name="desfiltrar" value="true">
+            <button type="submit" class="btn btn-secondary mt-2">Desfiltrar</button>
+        </form>
+    </div>
+
+    <h2>Calculadora de Productos</h2>
+
+    <!-- Productos en Cards -->
+    <div id="productos" class="row">
+        {% for producto in productos %}
+        <div class="col-sm-6 col-md-3 col-lg-2 mb-4 producto-card" data-id="{{ producto.id }}" data-precio="{{ producto.precio }}">
+            <div class="card">
+                <img src="{{ producto.imagen_url }}" class="card-img-top" alt="{{ producto.nombre_producto }}">
+                <div class="card-body">
+                    <h6 class="card-title">{{ producto.nombre_producto }}</h6>
+                    <p class="card-text">{{ producto.descripcion }}</p>
+                    <p><strong>Precio: ${{ producto.precio }}</strong></p>
+                    {% if producto.id in productos_seleccionados %}
+                    <button class="btn btn-secondary" disabled>Agregado</button>
+                    {% else %}
+                    <form method="post" action="{% url 'calculadora' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add">
+                        <input type="hidden" name="id_producto" value="{{ producto.id }}">
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Mostrar el Total -->
+    <div class="mt-4">
+        <button id="verTotalBtn" class="btn btn-success">Ver Total</button>
+        <p><strong>Total: $<span id="total">{{ total }}</span></strong></p>
+    </div>
+
+    <!-- Paginación -->
+    <div class="mt-4 d-flex justify-content-center">
+        <nav aria-label="Paginación">
+            <ul class="pagination">
+                {% if productos.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&nombre={{ nombre_producto }}&categoria={{ categoria_id }}" aria-label="Primera">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.previous_page_number }}&nombre={{ nombre_producto }}&categoria={{ categoria_id }}" aria-label="Anterior">
+                        <span aria-hidden="true">&lsaquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                <li class="page-item disabled">
+                    <span class="page-link">Página {{ productos.number }} de {{ productos.paginator.num_pages }}</span>
+                </li>
+
+                {% if productos.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.next_page_number }}&nombre={{ nombre_producto }}&categoria={{ categoria_id }}" aria-label="Siguiente">
+                        <span aria-hidden="true">&rsaquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.paginator.num_pages }}&nombre={{ nombre_producto }}&categoria={{ categoria_id }}" aria-label="Última">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+{% block script %}
+<script>
+    $(document).ready(function() {
+        let total = {{ total }};
+
+        // Actualizar total (ya lo hace en la vista)
+        $('#verTotalBtn').click(function() {
+            alert('Total: $' + total);
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

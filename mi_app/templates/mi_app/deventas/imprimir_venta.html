@@ -1,0 +1,287 @@
+{% extends 'mi_app/base.html' %}
+{% load static %}
+
+{% block title %}Comprobante de Venta #{{ venta.numero_documento }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    @page {
+        size: A4;
+        margin: 1cm;
+    }
+    
+    @media print {
+        body {
+            font-size: 10pt; /* Reducido de 12pt */
+            color: #000;
+        }
+        
+        .no-print {
+            display: none !important;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .card {
+            border: none !important;
+        }
+        
+        .btn {
+            display: none !important;
+        }
+    }
+    
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f5f5f5;
+    }
+    
+    .comprobante-container {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 15px; /* Reducido de 20px */
+        margin: 15px auto; /* Reducido de 20px */
+        max-width: 800px;
+    }
+    
+    .comprobante-header {
+        text-align: center;
+        padding-bottom: 10px; /* Reducido de 15px */
+        border-bottom: 2px solid #eaeaea;
+        margin-bottom: 15px; /* Reducido de 20px */
+    }
+    
+    .comprobante-logo {
+        max-width: 150px; /* Reducido de 200px */
+        margin-bottom: 8px; /* Reducido de 10px */
+    }
+    
+    .comprobante-title {
+        font-size: 20px; /* Reducido de 24px */
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 3px; /* Reducido de 5px */
+    }
+    
+    .comprobante-subtitle {
+        font-size: 14px; /* Reducido de 16px */
+        color: #666;
+    }
+    
+    .comprobante-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px; /* Reducido de 20px */
+    }
+    
+    .comprobante-info-section {
+        width: 48%;
+        padding: 8px; /* Reducido de 10px */
+        background-color: #f9f9f9;
+        border-radius: 5px;
+    }
+    
+    .comprobante-info-title {
+        font-weight: bold;
+        border-bottom: 1px solid #eaeaea;
+        padding-bottom: 4px; /* Reducido de 5px */
+        margin-bottom: 6px; /* Reducido de 8px */
+        font-size: 13px;
+    }
+    
+    .comprobante-info-section p {
+        margin: 4px 0; /* Espaciado reducido entre párrafos */
+        font-size: 12px;
+    }
+    
+    .comprobante-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0; /* Reducido de 20px */
+        font-size: 12px; /* Tamaño de texto reducido */
+    }
+    
+    .comprobante-table th {
+        background-color: #4a6fdc;
+        color: white;
+        padding: 6px 8px; /* Reducido de 10px */
+        text-align: left;
+        font-size: 11px; /* Tamaño más pequeño para encabezados */
+    }
+    
+    .comprobante-table td {
+        padding: 5px 8px; /* Reducido de 10px */
+        border-bottom: 1px solid #eaeaea;
+        vertical-align: middle;
+    }
+    
+    .comprobante-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    .comprobante-total {
+        text-align: right;
+        font-size: 16px; /* Reducido de 18px */
+        font-weight: bold;
+        margin-top: 15px; /* Reducido de 20px */
+        padding-top: 8px; /* Reducido de 10px */
+        border-top: 2px solid #eaeaea;
+    }
+    
+    .comprobante-footer {
+        text-align: center;
+        margin-top: 20px; /* Reducido de 30px */
+        padding-top: 15px; /* Reducido de 20px */
+        border-top: 1px solid #eaeaea;
+        color: #666;
+        font-size: 12px; /* Reducido de 14px */
+    }
+    
+    .comprobante-footer p {
+        margin: 5px 0; /* Espaciado reducido entre párrafos */
+    }
+    
+    .print-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #4a6fdc;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .print-button:hover {
+        background-color: #3f5fc5;
+        transform: translateY(-2px);
+    }
+    
+    /* Estilo más compacto para los productos */
+    .producto-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .producto-info-text {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .producto-info-text strong {
+        font-size: 12px;
+        line-height: 1.2;
+    }
+    
+    .producto-info-text small {
+        font-size: 10px;
+        color: #666;
+        line-height: 1.1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="no-print">
+    <button onclick="window.print();" class="print-button">
+        <i class="fas fa-print"></i> Imprimir comprobante
+    </button>
+</div>
+
+<div class="comprobante-container">
+    <div class="comprobante-header">
+        <img src="{% static 'mi_app/img/logo.png' %}" alt="Logo" class="comprobante-logo">
+        <h1 class="comprobante-title">COMPROBANTE DE VENTA</h1>
+        <p class="comprobante-subtitle">{{ venta.tipo_documento }} N° {{ venta.numero_documento }}</p>
+    </div>
+    
+    <div class="comprobante-info">
+        <div class="comprobante-info-section">
+            <div class="comprobante-info-title">DATOS DEL CLIENTE</div>
+            <p><strong>Cliente:</strong> {{ venta.cliente_nombre }}</p>
+            <p><strong>Contacto:</strong> {{ venta.cliente_contacto|default:"No registrado" }}</p>
+            <p><strong>Documento:</strong> {{ venta.tipo_documento }}</p>
+        </div>
+        
+        <div class="comprobante-info-section">
+            <div class="comprobante-info-title">DATOS DE LA VENTA</div>
+            <p><strong>Fecha:</strong> {{ venta.fecha_venta|date:"d/m/Y H:i" }}</p>
+            <p><strong>Número:</strong> {{ venta.numero_documento }}</p>
+            <p><strong>Total:</strong> S/ {{ venta.total_venta|floatformat:2 }}</p>
+        </div>
+    </div>
+    
+    <table class="comprobante-table">
+        <thead>
+            <tr>
+                <th style="width: 5%">#</th>
+                <th style="width: 40%">Producto</th>
+                <th style="width: 15%">Cantidad</th>
+                <th style="width: 15%">Precio</th>
+                <th style="width: 15%">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in detalles %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                    <div class="producto-info">
+                        <div class="producto-info-text">
+                            <strong>{{ detalle.producto.nombre_producto }}</strong>
+                            <small>{{ detalle.producto.marca.nombre_marca }} - {{ detalle.producto.categoria.nombre_categoria }}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ detalle.cantidad }}</td>
+                <td>S/ {{ detalle.precio_unitario|floatformat:2 }}</td>
+                <td>S/ {{ detalle.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="comprobante-total">
+        TOTAL: S/ {{ venta.total_venta|floatformat:2 }}
+    </div>
+    
+    <div class="comprobante-footer">
+        <p><strong>¡Gracias por su compra!</strong></p>
+        <p>Este documento es un comprobante de venta. Los productos vendidos no tienen garantía salvo que se indique explícitamente.</p>
+        <p>Para cualquier reclamo, presente este comprobante.</p>
+        <hr>
+        <p>Mi Empresa S.A.C. - RUC: 20123456789<br>
+        Dirección: Av. Principal 123, Lima<br>
+        Teléfono: (01) 123-4567 | Email: ventas@miempresa.com</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    {% if imprimir %}
+    // Automáticamente abrir diálogo de impresión si viene de la vista de impresión
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            window.print();
+        }, 500);
+    });
+    {% endif %}
+    
+    // Capturar la tecla Escape para volver atrás
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            window.history.back();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi Aplicación{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #f8f9fa;
+            font-size: 12px;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: rgb(74, 225, 89);
+        }
+        .navbar .navbar-brand, .navbar .nav-link {
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+        }
+        .navbar .nav-link:hover {
+            color: #ddd;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: #5D2F8E;
+            color: #fff;
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 60px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .list-group-item {
+            background-color: #5D2F8E;
+            color: #fff;
+            border: none;
+            font-weight: 500;
+        }
+        .sidebar .list-group-item:hover {
+            background-color: #7A4A9F;
+        }
+        .sidebar .list-group-item.active {
+            background-color: #9B5C9E;
+        }
+
+        /* Contenido principal */
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding-top: 20px;
+            }
+            .content {
+                margin-left: 0;
+            }
+        }
+
+        .material-icons {
+            font-size: 20px;
+            color: white;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar d-none d-md-block">
+        <h4 class="text-center mb-4">Menú de Navegación</h4>
+        <div class="list-group">
+            <a href="{% url 'home' %}" class="list-group-item list-group-item-action active"><i class="material-icons">home</i> Inicio</a>
+            <a href="{% url 'about' %}" class="list-group-item list-group-item-action"><i class="material-icons">info</i> Sobre Nosotros</a>
+            <a href="{% url 'listar_marcas' %}" class="list-group-item list-group-item-action"><i class="material-icons">build</i> Marcas</a>
+            <a href="{% url 'listar_categorias' %}" class="list-group-item list-group-item-action"><i class="material-icons">category</i> Categorías</a>
+            <a href="{% url 'listar_tipos_motor' %}" class="list-group-item list-group-item-action"><i class="material-icons">commute</i> Tipo de Motor</a>
+            <a href="{% url 'listar_productos' %}" class="list-group-item list-group-item-action"><i class="material-icons">inventory</i> Productos</a>
+            <a href="{% url 'pedido_list' %}" class="list-group-item list-group-item-action"><i class="material-icons">view_module</i> Pedido</a>
+            <a href="{% url 'listar_clientes' %}" class="list-group-item list-group-item-action"><i class="material-icons">person</i> Clientes</a>
+            <a href="{% url 'listar_proveedores' %}" class="list-group-item list-group-item-action"><i class="material-icons">group</i> Proveedores</a>
+            <a href="{% url 'listar_compras' %}" class="list-group-item list-group-item-action"><i class="material-icons">shopping_cart</i> Compras</a>
+            <a href="{% url 'listar_ventas' %}" class="list-group-item list-group-item-action"><i class="material-icons">attach_money</i> Ventas</a>
+            <a href="{% url 'listar_tipos_documento' %}" class="list-group-item list-group-item-action"><i class="material-icons">description</i> Tipo de Documento</a>
+            <a href="{% url 'calculadora' %}" class="list-group-item list-group-item-action"><i class="material-icons">calculate</i> Calculadora</a>
+            <a href="{% url 'stock_por_producto' %}" class="list-group-item list-group-item-action"><i class="material-icons">calculate</i> Stock</a>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="content">
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Lista de Arbitrios Municipales{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">📋 Lista de Arbitrios Municipales</h2>
+  
+  <a href="{% url 'arbitrios_nuevo' %}" class="btn btn-success mb-3">
+    ➕ Nuevo Arbitrio
+  </a>
+
+  {% if arbitrios %}
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Municipio</th>
+        <th>Monto</th>
+        <th>Fecha de Pago</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for arbitrio in arbitrios %}
+      <tr>
+        <td>{{ arbitrio.id }}</td>
+        <td>{{ arbitrio.municipio }}</td>
+        <td>S/ {{ arbitrio.monto }}</td>
+        <td>{{ arbitrio.fecha_pago }}</td>
+        <td>
+          {% if arbitrio.estado == "Pagado" %}
+            <span class="badge bg-success">✅ Pagado</span>
+          {% else %}
+            <span class="badge bg-danger">⏳ Pendiente</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'arbitrios_detalle' arbitrio.id %}" class="btn btn-info btn-sm">👁️ Ver</a>
+          <a href="{% url 'arbitrios_editar' arbitrio.id %}" class="btn btn-warning btn-sm">✏️ Editar</a>
+          <a href="{% url 'arbitrios_eliminar' arbitrio.id %}" class="btn btn-danger btn-sm">🗑️ Eliminar</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="alert alert-info">⚠️ No hay arbitrios registrados.</p>
+  {% endif %}
+</div>
+{% endblock %}

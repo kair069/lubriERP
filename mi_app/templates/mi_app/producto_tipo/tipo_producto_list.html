@@ -1,0 +1,39 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Lista de Relaciones Producto-Tipo Producto{% endblock %}
+
+{% block content %}
+    <h1>Lista de Relaciones Producto-Tipo Producto</h1>
+    
+    {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <a href="{% url 'producto_tipo_create' %}" class="btn btn-primary">Crear Relación</a>
+    
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Tipo de Producto</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto_tipo in producto_tipos %}
+                <tr>
+                    <td>{{ producto_tipo.producto.nombre_producto }}</td>
+                    <td>{{ producto_tipo.tipo_producto.nombre_tipo_producto }}</td>
+                    <td>
+                        <a href="{% url 'producto_tipo_edit' producto_tipo.pk %}" class="btn btn-warning">Editar</a>
+                        <a href="{% url 'producto_tipo_delete' producto_tipo.pk %}" class="btn btn-danger">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

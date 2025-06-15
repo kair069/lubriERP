@@ -1,0 +1,13 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Eliminar Relación Producto-Tipo Producto{% endblock %}
+
+{% block content %}
+    <h1>¿Seguro que deseas eliminar la relación entre "{{ producto_tipo.producto.nombre_producto }}" y "{{ producto_tipo.tipo_producto.nombre_tipo_producto }}"?</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a href="{% url 'producto_tipo_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+{% endblock %}

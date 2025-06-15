@@ -1,0 +1,61 @@
+{% extends 'mi_app/base.html' %}
+{% block title %}{% if form.instance.pk %}Editar Pedido{% else %}Nuevo Pedido{% endif %}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% if form.instance.pk %}Editar Pedido{% else %}Nuevo Pedido{% endif %}</h1>
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    
+    <div class="mb-3">
+        <label for="{{ form.numero_pedido.id_for_label }}" class="form-label">Número de Pedido</label>
+        {{ form.numero_pedido }}
+        {% if form.numero_pedido.errors %}
+            <div class="text-danger">{{ form.numero_pedido.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        <label for="{{ form.proveedor.id_for_label }}" class="form-label">Proveedor</label>
+        {{ form.proveedor }}
+        {% if form.proveedor.errors %}
+            <div class="text-danger">{{ form.proveedor.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        <label for="{{ form.estado_pago.id_for_label }}" class="form-label">Estado de Pago</label>
+        {{ form.estado_pago }}
+        {% if form.estado_pago.errors %}
+            <div class="text-danger">{{ form.estado_pago.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        <label for="{{ form.metodo_pago.id_for_label }}" class="form-label">Método de Pago</label>
+        {{ form.metodo_pago }}
+        {% if form.metodo_pago.errors %}
+            <div class="text-danger">{{ form.metodo_pago.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        <label for="{{ form.fecha_entrega.id_for_label }}" class="form-label">Fecha de Entrega</label>
+        {{ form.fecha_entrega }}
+        {% if form.fecha_entrega.errors %}
+            <div class="text-danger">{{ form.fecha_entrega.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+        {{ form.descripcion }}
+        {% if form.descripcion.errors %}
+            <div class="text-danger">{{ form.descripcion.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <button type="submit" class="btn btn-success">{% if form.instance.pk %}Actualizar{% else %}Crear{% endif %}</button>
+    <a href="{% url 'pedido_list' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

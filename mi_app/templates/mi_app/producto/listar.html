@@ -1,0 +1,861 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Estilos modernos -->
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #2ec4b6;
+            --danger-color: #e63946;
+            --warning-color: #fca311;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        .btn-modern {
+            border-radius: 10px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-modern::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            transition: transform 0.4s ease-out;
+        }
+        
+        .btn-modern:hover::after {
+            transform: translateX(0);
+        }
+        
+        .btn-modern:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary-modern {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+        }
+        
+        .btn-success-modern {
+            background: linear-gradient(45deg, #20bf55, var(--success-color));
+            border: none;
+            color: white;
+        }
+        
+        .btn-danger-modern {
+            background: linear-gradient(45deg, var(--danger-color), #d90429);
+            border: none;
+            color: white;
+        }
+        
+        .btn-warning-modern {
+            background: linear-gradient(45deg, var(--warning-color), #ffb703);
+            border: none;
+            color: #212529;
+        }
+        
+        .search-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-card:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .product-card {
+            border-radius: 16px;
+            overflow: hidden;
+            border: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            height: 100%;
+            background: white;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .product-card .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 1rem;
+            border: none;
+        }
+        
+        .product-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .product-img-container {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .product-img {
+            max-height: 100%;
+            width: auto;
+            transition: transform 0.5s ease;
+            object-fit: contain;
+        }
+        
+        .product-card:hover .product-img {
+            transform: scale(1.08);
+        }
+        
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .badge-modern {
+            border-radius: 50rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .action-btn {
+            flex: 1;
+            border-radius: 8px;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination-modern {
+            margin-top: 2.5rem;
+        }
+        
+        .pagination-modern .page-link {
+            border: none;
+            border-radius: 8px;
+            margin: 0 0.2rem;
+            padding: 0.5rem 1rem;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .pagination-modern .page-item.active .page-link {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .pagination-modern .page-link:hover:not(.active) {
+            background-color: rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .form-control-modern {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .form-control-modern:focus {
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15);
+            border-color: var(--primary-color);
+        }
+        
+        .form-select-modern {
+            border-radius: 10px;
+            padding: 0.75rem 2.25rem 0.75rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .form-select-modern:focus {
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15);
+            border-color: var(--primary-color);
+        }
+        
+        .form-floating>label {
+            padding: 0.75rem 1rem;
+        }
+        
+        .section-title {
+            position: relative;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--dark-color);
+        }
+        
+        .section-title:after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+            height: 4px;
+            width: 50px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+        
+        .no-products {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Estilos para los chips de filtro */
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(67, 97, 238, 0.1);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-chip:hover {
+            background: rgba(67, 97, 238, 0.2);
+        }
+        
+        .filter-chip .chip-text {
+            margin-right: 0.5rem;
+        }
+        
+        .filter-chip .chip-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .filter-chip .chip-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            opacity: 1;
+        }
+        
+        /* Estilos para el panel de selección de filtros */
+        .filter-panel {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-panel-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-panel-title i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .filter-step {
+            padding: 1rem;
+            border-radius: 12px;
+            background: white;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            position: relative;
+        }
+        
+        .filter-step.inactive {
+            opacity: 0.7;
+        }
+        
+        .filter-step-number {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.3);
+        }
+        
+        .filter-active-badge {
+            display: flex;
+            align-items: center;
+            padding: 0.35rem 0.75rem;
+            background: rgba(67, 97, 238, 0.1);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--primary-color);
+            margin-top: 0.5rem;
+        }
+    </style>
+
+    <!-- Header y Actions Section -->
+    <h2 class="section-title mb-4">Gestión de Productos</h2>
+    
+    <div class="row g-4 mb-4">
+        <div class="col-md-4 col-lg-3">
+            <a href="{% url 'crear_producto' %}" class="btn btn-modern btn-primary-modern w-100 d-flex align-items-center justify-content-center gap-2">
+                <i class="fas fa-plus-circle"></i>
+                <span>Nuevo Producto</span>
+            </a>
+        </div>
+        
+        <div class="col-md-4 col-lg-3">
+            <form id="exportForm" action="{% url 'exportar_productos_excel' %}" method="get" onsubmit="return handleExport(event)">
+                <button type="submit" class="btn btn-modern btn-success-modern w-100 d-flex align-items-center justify-content-center gap-2" id="exportButton">
+                    <i class="fas fa-file-excel"></i>
+                    <span>Exportar a Excel</span>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="loadingOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: rgba(0,0,0,0.5); z-index: 1050;">
+        <div class="bg-white p-4 rounded-3 d-flex flex-column align-items-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <div class="text-center">
+                <h5 class="mb-1">Generando archivo</h5>
+                <p class="text-muted mb-0">Por favor espere...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros de productos con experiencia mejorada -->
+    <div class="filter-panel">
+        <h5 class="filter-panel-title">
+            <i class="fas fa-filter"></i> Filtros de Búsqueda
+        </h5>
+        
+        <form method="GET" action="" id="filtroForm">
+            <div class="row g-3">
+                <!-- Paso 1: Selección de marca -->
+                <div class="col-md-4">
+                    <div class="filter-step">
+                        <div class="filter-step-number">1</div>
+                        <label class="form-label fw-bold">Selecciona una Marca</label>
+                        <select name="marca_id" id="marcaFiltro" class="form-select form-select-modern">
+                            <option value="">Todas las marcas</option>
+                            {% for marca in marcas %}
+                                <option value="{{ marca.id }}" {% if marca_id == marca.id|stringformat:'s' %}selected{% endif %}>
+                                    {{ marca.nombre_marca }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        
+                        {% if marca_nombre %}
+                        <div class="filter-active-badge">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>{{ marca_nombre }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Paso 2: Selección de categoría -->
+                <div class="col-md-4">
+                    <div class="filter-step {% if not marca_id %}inactive{% endif %}">
+                        <div class="filter-step-number">2</div>
+                        <label class="form-label fw-bold">
+                            {% if not marca_id %}
+                                Primero selecciona una marca
+                            {% else %}
+                                Selecciona una Categoría
+                            {% endif %}
+                        </label>
+                        <select name="categoria_id" id="categoriaFiltro" class="form-select form-select-modern" {% if not marca_id %}disabled{% endif %}>
+                            <option value="">Todas las categorías</option>
+                            {% for categoria in categorias %}
+                                <option value="{{ categoria.id }}" {% if categoria_id == categoria.id|stringformat:'s' %}selected{% endif %}>
+                                    {{ categoria.nombre_categoria }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        
+                        {% if categoria_nombre %}
+                        <div class="filter-active-badge">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>{{ categoria_nombre }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Paso 3: Búsqueda por nombre de producto -->
+                <div class="col-md-4">
+                    <div class="filter-step">
+                        <div class="filter-step-number">3</div>
+                        <label class="form-label fw-bold">Buscar por Nombre</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="nombre" id="nombreFiltro" class="form-control form-control-modern" 
+                                   placeholder="Nombre del producto" value="{{ nombre }}">
+                        </div>
+                        
+                        {% if nombre %}
+                        <div class="filter-active-badge">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>{{ nombre }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Opción adicional: Código QR -->
+                <div class="col-md-4">
+                    <div class="filter-step">
+                        <label class="form-label fw-bold">Código QR (Opcional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-qrcode"></i></span>
+                            <input type="text" name="qr_code" id="qrFiltro" class="form-control form-control-modern" 
+                                   placeholder="Código QR" value="{{ qr_code }}">
+                        </div>
+                        
+                        {% if qr_code %}
+                        <div class="filter-active-badge">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>{{ qr_code }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Botones de acción para filtros -->
+                <div class="col-md-8">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-modern btn-primary-modern">
+                            <i class="fas fa-filter me-2"></i> Aplicar Filtros
+                        </button>
+                        
+                        {% if marca_id or categoria_id or nombre or qr_code %}
+                        <a href="{% url 'listar_productos' %}" class="btn btn-modern btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i> Limpiar Filtros
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Chips de filtros activos -->
+        {% if marca_id or categoria_id or nombre or qr_code %}
+        <div class="mt-3 pt-3 border-top">
+            <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-tag me-2 text-primary"></i>
+                <span class="fw-bold">Filtros activos:</span>
+            </div>
+            
+            <div class="d-flex flex-wrap">
+                {% if marca_nombre %}
+                <div class="filter-chip">
+                    <span class="chip-text"><i class="fas fa-industry me-1"></i> Marca: {{ marca_nombre }}</span>
+                    <button type="button" class="chip-close" onclick="limpiarFiltro('marca_id')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endif %}
+                
+                {% if categoria_nombre %}
+                <div class="filter-chip">
+                    <span class="chip-text"><i class="fas fa-layer-group me-1"></i> Categoría: {{ categoria_nombre }}</span>
+                    <button type="button" class="chip-close" onclick="limpiarFiltro('categoria_id')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endif %}
+                
+                {% if nombre %}
+                <div class="filter-chip">
+                    <span class="chip-text"><i class="fas fa-font me-1"></i> Nombre: {{ nombre }}</span>
+                    <button type="button" class="chip-close" onclick="limpiarFiltro('nombre')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endif %}
+                
+                {% if qr_code %}
+                <div class="filter-chip">
+                    <span class="chip-text"><i class="fas fa-qrcode me-1"></i> QR: {{ qr_code }}</span>
+                    <button type="button" class="chip-close" onclick="limpiarFiltro('qr_code')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endif %}
+                
+                <div class="filter-chip" style="background-color: rgba(220, 53, 69, 0.1);">
+                    <span class="chip-text"><i class="fas fa-trash-alt me-1"></i> Limpiar todos</span>
+                    <button type="button" class="chip-close" onclick="limpiarTodos()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Products Section -->
+    <div class="row g-4">
+        {% for producto in productos %}
+        <div class="col-md-6 col-lg-4">
+            <div class="product-card h-100">
+                <div class="card-header text-center text-white">
+                    <h5 class="mb-0 text-truncate" title="{{ producto.nombre_producto }}">{{ producto.nombre_producto }}</h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="product-img-container">
+                        <img src="{{ producto.imagen_url|default:'path/to/default-image.jpg' }}" 
+                             alt="{{ producto.nombre_producto }}" class="product-img img-fluid" 
+                             loading="lazy">
+                    </div>
+                    
+                    <div class="product-info">
+                        {% if producto.descripcion %}
+                        <p class="text-muted mb-2" style="max-height: 60px; overflow: hidden;">
+                            {{ producto.descripcion|truncatechars:80 }}
+                        </p>
+                        {% else %}
+                        <p class="text-muted fst-italic mb-2">Sin descripción disponible</p>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-primary badge-modern">
+                                <i class="fas fa-dollar-sign me-1"></i> {{ producto.precio|floatformat:2 }} USD
+                            </span>
+                            {% if producto.stock < 5 %}
+                                <span class="badge bg-danger badge-modern">
+                                    <i class="fas fa-box me-1"></i> Stock: {{ producto.stock }}
+                                </span>
+                            {% elif producto.stock < 10 %}
+                                <span class="badge bg-warning badge-modern">
+                                    <i class="fas fa-box me-1"></i> Stock: {{ producto.stock }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-success badge-modern">
+                                    <i class="fas fa-box me-1"></i> Stock: {{ producto.stock }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex gap-2 mb-3">
+                            <span class="badge bg-dark badge-modern">
+                                <i class="fas fa-tag me-1"></i> {{ producto.marca }}
+                            </span>
+                            <span class="badge bg-secondary badge-modern">
+                                <i class="fas fa-folder me-1"></i> {{ producto.categoria }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <a href="{% url 'detalle_producto' producto.pk %}" class="action-btn btn-modern text-white" style="background-color: #0096c7;">
+                                <i class="fas fa-eye me-1"></i> Ver
+                            </a>
+                            <a href="{% url 'editar_producto' producto.pk %}" class="action-btn btn-modern text-dark" style="background-color: #ffd166;">
+                                <i class="fas fa-edit me-1"></i> Editar
+                            </a>
+                            <a href="{% url 'eliminar_producto' producto.pk %}" class="action-btn btn-modern text-white" style="background-color: #ef476f;">
+                                <i class="fas fa-trash me-1"></i> Eliminar
+                            </a>
+                        </div>
+                        
+                        <button class="btn btn-modern w-100 text-white" style="background: linear-gradient(45deg, #00b4d8, #0077b6);">
+                            <i class="fas fa-shopping-cart me-2"></i> Agregar al carrito
+                        </button>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-muted text-center p-3 border-top-0">
+                    <i class="far fa-clock me-1"></i> Actualizado: {{ producto.fecha_modificacion|date:"d/m/Y H:i" }}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="no-products">
+                <i class="fas fa-box-open mb-3" style="font-size: 3rem; color: #ccc;"></i>
+                <h4>No se encontraron productos</h4>
+                <p class="text-muted">Intenta con otros filtros o añade nuevos productos</p>
+                <a href="{% url 'listar_productos' %}" class="btn btn-modern btn-outline-primary mt-3">
+                    <i class="fas fa-undo me-2"></i> Ver todos los productos
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación modernizada -->
+    {% if productos.paginator.num_pages > 1 %}
+    <nav class="pagination-modern">
+        <ul class="pagination justify-content-center flex-wrap">
+            {% if productos.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if marca_id %}&marca_id={{ marca_id }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}{% if nombre %}&nombre={{ nombre }}{% endif %}{% if qr_code %}&qr_code={{ qr_code }}{% endif %}" aria-label="Primera">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.previous_page_number }}{% if marca_id %}&marca_id={{ marca_id }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}{% if nombre %}&nombre={{ nombre }}{% endif %}{% if qr_code %}&qr_code={{ qr_code }}{% endif %}" aria-label="Anterior">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            {# Mostrar páginas alrededor de la actual #}
+            {% with ''|center:productos.paginator.num_pages as range %}
+                {% for _ in range %}
+                    {% with forloop.counter as page_num %}
+                        {% if page_num == productos.number %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% elif page_num > productos.number|add:"-3" and page_num < productos.number|add:"3" %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_num }}{% if marca_id %}&marca_id={{ marca_id }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}{% if nombre %}&nombre={{ nombre }}{% endif %}{% if qr_code %}&qr_code={{ qr_code }}{% endif %}">{{ page_num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endwith %}
+                {% endfor %}
+            {% endwith %}
+
+            {% if productos.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.next_page_number }}{% if marca_id %}&marca_id={{ marca_id }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}{% if nombre %}&nombre={{ nombre }}{% endif %}{% if qr_code %}&qr_code={{ qr_code }}{% endif %}" aria-label="Siguiente">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.paginator.num_pages }}{% if marca_id %}&marca_id={{ marca_id }}{% endif %}{% if categoria_id %}&categoria_id={{ categoria_id }}{% endif %}{% if nombre %}&nombre={{ nombre }}{% endif %}{% if qr_code %}&qr_code={{ qr_code }}{% endif %}" aria-label="Última">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const marcaSelect = document.getElementById('marcaFiltro');
+        const categoriaSelect = document.getElementById('categoriaFiltro');
+        
+        // Manejar cambio en el selector de marca
+        marcaSelect.addEventListener('change', function() {
+            const marcaId = this.value;
+            
+            // Limpiar y deshabilitar el selector de categorías si no hay marca seleccionada
+            if (!marcaId) {
+                categoriaSelect.innerHTML = '<option value="">Todas las categorías</option>';
+                categoriaSelect.disabled = true;
+                document.querySelector('.filter-step:nth-child(2)').classList.add('inactive');
+                return;
+            
+            // Habilitar el selector de categorías y quitar clase inactive
+            categoriaSelect.disabled = false;
+            const filterStep = document.querySelector('.filter-step:nth-child(2)');
+            if (filterStep) {
+                filterStep.classList.remove('inactive');
+            }
+            
+            // Actualizar el texto del label
+            const filterStepLabel = filterStep.querySelector('.form-label');
+            if (filterStepLabel) {
+                filterStepLabel.textContent = 'Selecciona una Categoría';
+            }
+            
+            // Actualizar selector de categorías via AJAX
+            fetch(`/mi_app/get_categorias_por_marca/?marca_id=${marcaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Limpiar selector actual
+                    categoriaSelect.innerHTML = '<option value="">Todas las categorías</option>';
+                    
+                    // Añadir nuevas opciones
+                    if (data.categorias && data.categorias.length > 0) {
+                        data.categorias.forEach(categoria => {
+                            const option = document.createElement('option');
+                            option.value = categoria.id;
+                            option.textContent = categoria.nombre_categoria;
+                            categoriaSelect.appendChild(option);
+                        });
+                    } else {
+                        // No hay categorías disponibles para esta marca
+                        const option = document.createElement('option');
+                        option.value = "";
+                        option.textContent = "No hay categorías disponibles";
+                        categoriaSelect.appendChild(option);
+                        
+                        if (filterStepLabel) {
+                            filterStepLabel.innerHTML = '<i class="fas fa-exclamation-triangle me-2 text-warning"></i> Sin categorías para esta marca';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar categorías:', error);
+                    // Mostrar mensaje de error
+                    categoriaSelect.innerHTML = '<option value="">Error al cargar categorías</option>';
+                    
+                    if (filterStepLabel) {
+                        filterStepLabel.innerHTML = '<i class="fas fa-exclamation-circle me-2 text-danger"></i> Error al cargar categorías';
+                    }
+                });
+        });
+        
+        // Función para limpiar un filtro específico
+        window.limpiarFiltro = function(nombreFiltro) {
+            const input = document.getElementsByName(nombreFiltro)[0];
+            if (input) {
+                input.value = '';
+                document.getElementById('filtroForm').submit();
+            }
+        }
+        
+        // Función para limpiar todos los filtros
+        window.limpiarTodos = function() {
+            window.location.href = "{% url 'listar_productos' %}";
+        }
+    });
+    
+    // Mejorado: Función que intercepta el envío del formulario y usa AJAX con mejor UX
+    function handleExport(event) {
+        event.preventDefault();
+        
+        // Mostrar overlay con spinner
+        document.getElementById('loadingOverlay').classList.remove('d-none');
+        document.getElementById('exportButton').disabled = true;
+        
+        // Usamos fetch para enviar la solicitud sin recargar la página
+        fetch(event.target.action, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            // Crear enlace para descargar
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            const timestamp = new Date().toISOString().replace(/[-:.]/g, "").substring(0, 14);
+            link.href = url;
+            link.download = `productos_${timestamp}.xlsx`;
+            link.click();
+            
+            // Limpiar y mostrar mensaje de éxito
+            document.getElementById('loadingOverlay').classList.add('d-none');
+            document.getElementById('exportButton').disabled = false;
+            
+            // Mostrar toast de éxito (si tienes bootstrap 5)
+            showToast('Éxito', 'Archivo exportado correctamente');
+        })
+        .catch(error => {
+            console.error('Error durante la exportación:', error);
+            document.getElementById('loadingOverlay').classList.add('d-none');
+            document.getElementById('exportButton').disabled = false;
+            
+            // Mostrar toast de error
+            showToast('Error', 'No se pudo exportar el archivo', true);
+        });
+        
+        return false;
+    }
+    
+    // Función para mostrar toast (requiere Bootstrap 5)
+    function showToast(title, message, isError = false) {
+        // Verificar si ya existe un contenedor de toasts
+        let toastContainer = document.querySelector('.toast-container');
+        
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            document.body.appendChild(toastContainer);
+        }
+        
+        // Crear el toast
+        const toastEl = document.createElement('div');
+        toastEl.className = `toast align-items-center ${isError ? 'text-white bg-danger' : 'text-white bg-success'} border-0`;
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
+        
+        // Contenido del toast
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>${title}:</strong> ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        // Añadir a la contenedor
+        toastContainer.appendChild(toastEl);
+        
+        // Inicializar y mostrar usando Bootstrap 5 - ajusta si usas otra versión
+        const toast = new bootstrap.Toast(toastEl, { autohide: true, delay: 3000 });
+        toast.show();
+        
+        // Limpieza automática
+        toastEl.addEventListener('hidden.bs.toast', function () {
+            toastEl.remove();
+        });
+    }
+</script>
+{% endblock %}

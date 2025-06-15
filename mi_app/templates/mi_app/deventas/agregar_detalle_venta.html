@@ -1,0 +1,500 @@
+{% extends 'mi_app/base.html' %}
+
+{% load static %}
+
+{% block title %}Agregar Productos a Venta #{{ venta.numero_documento }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos mejorados */
+    .product-row {
+        border-bottom: 1px solid #e9ecef;
+        padding: 12px 0;
+        transition: all 0.2s ease;
+    }
+    .product-row:hover {
+        background-color: #f8f9fa;
+        transform: translateX(3px);
+    }
+    .cart-summary {
+        position: sticky;
+        top: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .product-item {
+        display: flex;
+        align-items: center;
+    }
+    .product-info {
+        flex-grow: 1;
+    }
+    .product-actions {
+        flex-shrink: 0;
+    }
+    #product-cart {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 0 5px;
+    }
+    .product-card {
+        transition: all 0.3s ease;
+        border: 1px solid #dee2e6;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+    .stock-badge {
+        font-size: 0.9em;
+        padding: 4px 8px;
+        border-radius: 50px;
+        font-weight: bold;
+    }
+    .stock-display {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+    }
+    .price-tag {
+        font-weight: 600;
+        color: #28a745;
+        font-size: 1.1em;
+    }
+    .product-image {
+        width: 100%;
+        height: 140px;
+        object-fit: contain;
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+    }
+    .btn-primary {
+        background-color: #4a6fdc;
+        border-color: #3f5fc5;
+    }
+    .btn-primary:hover {
+        background-color: #3f5fc5;
+        border-color: #3452b0;
+    }
+    .btn-success {
+        background-color: #28a745;
+        border-color: #218838;
+    }
+    .cart-item-image {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        margin-right: 10px;
+        background-color: #f9f9f9;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        padding: 3px;
+    }
+    .search-box {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    .search-box:focus-within {
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .form-control:focus {
+        border-color: #4a6fdc;
+        box-shadow: 0 0 0 0.2rem rgba(74, 111, 220, 0.25);
+    }
+    .summary-section {
+        border-radius: 6px;
+        background-color: #f9fcf7;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid #e6f0dd;
+    }
+    .badge.stock-high {
+        background-color: #28a745;
+    }
+    .badge.stock-medium {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    .badge.stock-low {
+        background-color: #dc3545;
+    }
+    .badge.stock-none {
+        background-color: #6c757d;
+    }
+    
+    /* Estilos para destacar el stock */
+    .stock-info {
+        display: flex;
+        align-items: center;
+        margin-top: 8px;
+        margin-bottom: 5px;
+        padding: 6px;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+    }
+    .stock-indicator {
+        width: 50px;
+        height: 6px;
+        border-radius: 3px;
+        margin-right: 10px;
+    }
+    .stock-high .stock-indicator {
+        background: linear-gradient(to right, #28a745, #34ce57);
+        box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+    }
+    .stock-medium .stock-indicator {
+        background: linear-gradient(to right, #ffc107, #ffda6a);
+        box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+    }
+    .stock-low .stock-indicator {
+        background: linear-gradient(to right, #dc3545, #e4606d);
+        box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
+    }
+    .stock-none .stock-indicator {
+        background: linear-gradient(to right, #6c757d, #868e96);
+        box-shadow: 0 0 5px rgba(108, 117, 125, 0.5);
+    }
+    .stock-text {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .stock-high .stock-text {
+        color: #28a745;
+    }
+    .stock-medium .stock-text {
+        color: #856404;
+    }
+    .stock-low .stock-text {
+        color: #dc3545;
+    }
+    .stock-none .stock-text {
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Mostrar mensajes de Django si existen -->
+    {% if messages %}
+    <div class="row mb-3">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Agregar Productos a Venta #{{ venta.numero_documento }}</h5>
+                    <span class="badge bg-info">{{ venta.cliente_nombre }}</span>
+                </div>
+                <div class="card-body">
+                    <!-- Formulario de búsqueda tradicional -->
+                    <form method="GET" action="" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <div class="form-group search-box">
+                                    <label for="busqueda" class="form-label">Buscar producto</label>
+                                    <input type="text" name="q" id="busqueda" class="form-control" 
+                                           placeholder="Nombre, marca o categoría..." 
+                                           value="{{ request.GET.q|default:'' }}">
+                                    <div class="form-text text-muted">
+                                        Busque productos por nombre, marca o categoría
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- Resultados de búsqueda -->
+                    {% if productos %}
+                    <h6 class="mb-3">Resultados de búsqueda ({{ productos|length }})</h6>
+                    <div class="row">
+                        {% for producto in productos %}
+                        <div class="col-md-6">
+                            <div class="card product-card">
+                                <!-- Badge de stock destacado -->
+                                <div class="stock-display">
+                                    <span class="badge 
+                                        {% if producto.stock > 10 %}stock-high{% elif producto.stock > 5 %}stock-medium{% elif producto.stock > 0 %}stock-low{% else %}stock-none{% endif %} 
+                                        stock-badge">
+                                        Stock: {{ producto.stock }}
+                                    </span>
+                                </div>
+                                
+                                {% if producto.imagen_url %}
+                                <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre_producto }}" class="product-image">
+                                {% else %}
+                                <div class="text-center pt-4 pb-2 bg-light">
+                                    <i class="fas fa-box fa-3x text-muted"></i>
+                                </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ producto.nombre_producto }}</h6>
+                                    <p class="card-text mb-1">
+                                        <small>
+                                            {{ producto.marca.nombre_marca }} - 
+                                            {{ producto.categoria.nombre_categoria }} - 
+                                            {{ producto.tipo_motor.tipo_motor }}
+                                        </small>
+                                    </p>
+                                    
+                                    <!-- Indicador visual de stock -->
+                                    <div class="stock-info 
+                                        {% if producto.stock > 10 %}stock-high{% elif producto.stock > 5 %}stock-medium{% elif producto.stock > 0 %}stock-low{% else %}stock-none{% endif %}">
+                                        <div class="stock-indicator"></div>
+                                        <div class="stock-text">
+                                            {% if producto.stock > 10 %}
+                                                Stock alto: {{ producto.stock }} unidades
+                                            {% elif producto.stock > 5 %}
+                                                Stock medio: {{ producto.stock }} unidades
+                                            {% elif producto.stock > 0 %}
+                                                Stock bajo: {{ producto.stock }} unidades
+                                            {% else %}
+                                                Sin stock
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="price-tag">S/ {{ producto.precio }}</span>
+                                    </div>
+                                    
+                                    <!-- Formulario para agregar producto a carrito de sesión -->
+                                    <form method="POST" action="" class="mt-2">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="agregar_producto" value="1">
+                                        <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <label class="form-label small">Cantidad</label>
+                                                <input type="number" name="cantidad" class="form-control form-control-sm" min="1" 
+                                                       max="{{ producto.stock }}" value="1" 
+                                                       {% if producto.stock <= 0 %}disabled{% endif %}>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label small">Precio (S/)</label>
+                                                <input type="number" name="precio_unitario" class="form-control form-control-sm" 
+                                                       step="0.01" value="{{ producto.precio }}" min="0.01">
+                                            </div>
+                                        </div>
+                                        <div class="d-grid mt-2">
+                                            <button type="submit" class="btn btn-sm btn-primary" 
+                                                    {% if producto.stock <= 0 %}disabled{% endif %}>
+                                                <i class="fas fa-plus"></i> Agregar
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% elif request.GET.q %}
+                    <div class="alert alert-info">
+                        No se encontraron productos para "{{ request.GET.q }}".
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        Utilice el buscador para encontrar productos.
+                    </div>
+                    {% endif %}
+
+                    <h6 class="mt-4 mb-3">Productos en esta venta</h6>
+                    <div id="product-cart">
+                        <!-- Mostrar productos en carrito de sesión -->
+                        {% if carrito %}
+                            {% for item in carrito %}
+                            <div class="product-row">
+                                <div class="product-item">
+                                    <div class="product-info">
+                                        <h6>{{ item.nombre }}</h6>
+                                        <small>{{ item.marca }} - {{ item.categoria }}</small>
+                                        <p class="mb-0">
+                                            <span class="badge bg-secondary">{{ item.cantidad }} unidades</span>
+                                            <span class="badge bg-info">S/ {{ item.precio }}</span>
+                                        </p>
+                                    </div>
+                                    <div class="product-actions">
+                                        <div class="text-end">
+                                            <h6>S/ {{ item.subtotal }}</h6>
+                                            <form method="POST" action="" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="eliminar_producto" value="1">
+                                                <input type="hidden" name="producto_index" value="{{ forloop.counter0 }}">
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                                <p>No hay productos agregados a esta venta</p>
+                                <small>Utilice el buscador para encontrar y agregar productos</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card cart-summary">
+                <div class="card-header">
+                    <h5 class="mb-0">Resumen de venta</h5>
+                </div>
+                <div class="card-body">
+                    <div class="summary-section">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Cliente:</span>
+                            <strong>{{ venta.cliente_nombre }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Documento:</span>
+                            <strong>{{ venta.tipo_documento }} {{ venta.numero_documento }}</strong>
+                        </div>
+                    </div>
+                    
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Subtotal</span>
+                            <strong>S/ {{ total_carrito|default:"0.00" }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between bg-light">
+                            <span>Total</span>
+                            <strong class="text-success">S/ {{ total_carrito|default:"0.00" }}</strong>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-grid gap-2">
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            <input type="hidden" name="finalizar_venta" value="1">
+                            <button type="submit" class="btn btn-success btn-lg w-100" 
+                                    {% if not carrito %}disabled{% endif %}>
+                                <i class="fas fa-save"></i> Finalizar venta
+                            </button>
+                        </form>
+                        <a href="{% url 'listar_detalles_venta' venta_id=venta.id %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Opcional: Detalles de la venta -->
+            {% if detalles_existentes %}
+            <div class="card mt-4 cart-summary">
+                <div class="card-header">
+                    <h5 class="mb-0">Detalles existentes</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                    {% for detalle in detalles_existentes %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ detalle.producto.nombre_producto }}</strong>
+                                    <br>
+                                    <small>{{ detalle.cantidad }} x S/ {{ detalle.precio_unitario }}</small>
+                                </div>
+                                <span>S/ {{ detalle.subtotal }}</span>
+                            </div>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Focus al campo de búsqueda
+        $('#busqueda').focus();
+        
+        // Confirmación antes de finalizar la venta
+        $('form:has(input[name="finalizar_venta"])').on('submit', function(e) {
+            if (!confirm('¿Está seguro que desea finalizar la venta?')) {
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        });
+        
+        // Validación básica de formularios
+        $('form:has(input[name="agregar_producto"])').on('submit', function(e) {
+            var cantidad = parseInt($(this).find('input[name="cantidad"]').val());
+            var precio = parseFloat($(this).find('input[name="precio_unitario"]').val());
+            
+            if (!cantidad || cantidad <= 0) {
+                alert('La cantidad debe ser mayor a cero');
+                e.preventDefault();
+                return false;
+            }
+            
+            if (!precio || precio <= 0) {
+                alert('El precio debe ser mayor a cero');
+                e.preventDefault();
+                return false;
+            }
+            
+            // Validación adicional de stock
+            var stockMax = parseInt($(this).find('input[name="cantidad"]').attr('max'));
+            if (cantidad > stockMax) {
+                alert('La cantidad excede el stock disponible (' + stockMax + ' unidades)');
+                e.preventDefault();
+                return false;
+            }
+            
+            return true;
+        });
+        
+        // Animación suave para el scroll
+        $('a[href^="#"]').on('click', function(event) {
+            var target = $(this.getAttribute('href'));
+            if(target.length) {
+                event.preventDefault();
+                $('html, body').animate({
+                    scrollTop: target.offset().top - 100
+                }, 500);
+            }
+        });
+    });
+</script>
+{% endblock %}

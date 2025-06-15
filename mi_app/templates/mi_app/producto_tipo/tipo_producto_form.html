@@ -1,0 +1,24 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Crear o Editar Relación Producto-Tipo Producto{% endblock %}
+
+{% block content %}
+    <h1>{{ form.instance.pk|yesno:"Editar,Crear" }} Relación Producto-Tipo Producto</h1>
+    
+    {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <a href="{% url 'producto_tipo_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+{% endblock %}

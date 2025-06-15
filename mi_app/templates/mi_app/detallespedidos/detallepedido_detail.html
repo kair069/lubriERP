@@ -1,0 +1,21 @@
+{% extends 'mi_app/base.html' %}
+{% block title %}Detalle del Pedido{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Detalle del Pedido</h1>
+<div class="card">
+    <div class="card-header">
+        Detalle: {{ detalle.pedido.numero_pedido }} - {{ detalle.producto.nombre_producto }}
+    </div>
+    <div class="card-body">
+        <p><strong>Pedido:</strong> {{ detalle.pedido.numero_pedido }}</p>
+        <p><strong>Producto:</strong> {{ detalle.producto.nombre_producto }}</p>
+        <p><strong>Cantidad:</strong> {{ detalle.cantidad }}</p>
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'detallepedido_update' detalle.pk %}" class="btn btn-warning">Editar</a>
+        <a href="{% url 'detallepedido_delete' detalle.pk %}" class="btn btn-danger">Eliminar</a>
+        <a href="{% url 'detallepedido_list' %}" class="btn btn-secondary">Volver a la Lista</a>
+    </div>
+</div>
+{% endblock %}

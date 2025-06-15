@@ -1,0 +1,28 @@
+
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+<h2>Listado de Tipos de Motor</h2>
+<a href="{% url 'crear_tipo_motor' %}" class="btn btn-primary">Crear Nuevo</a>
+<table class="table table-striped mt-4">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tipo de Motor</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tipo in tipos_motor %}
+        <tr>
+            <td>{{ tipo.id }}</td>
+            <td>{{ tipo.tipo_motor }}</td>
+            <td>
+                <a href="{% url 'editar_tipo_motor' tipo.id %}" class="btn btn-warning">Editar</a>
+                <a href="{% url 'eliminar_tipo_motor' tipo.id %}" class="btn btn-danger">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

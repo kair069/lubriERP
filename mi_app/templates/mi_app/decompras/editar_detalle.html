@@ -1,0 +1,11 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+  <h2>Editar Detalle de Compra</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+  </form>
+  <a href="{% url 'listar_detalles' compra.id %}" class="btn btn-link">Cancelar</a>
+{% endblock %}

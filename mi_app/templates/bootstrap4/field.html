@@ -1,0 +1,23 @@
+{% load crispy_forms_field %}
+
+<div class="form-group {% if field.errors %} has-error{% endif %} {% if field.required %} required-field{% endif %}">
+    {% if field.label %}
+        <label for="{{ field.id_for_label }}" class="{% if field.required %}font-weight-bold{% endif %}">
+            {{ field.label }}{% if field.required %} <span class="text-danger">*</span>{% endif %}
+        </label>
+    {% endif %}
+
+    {% if field.help_text %}
+        <small class="form-text text-muted">{{ field.help_text }}</small>
+    {% endif %}
+
+    {% crispy_field field %}
+
+    {% if field.errors %}
+        <div class="invalid-feedback">
+            {% for error in field.errors %}
+                {{ error }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

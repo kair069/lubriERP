@@ -1,0 +1,21 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Eliminar Marca{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Eliminar Marca</h4>
+        </div>
+        <div class="card-body">
+            <p class="lead">¿Estás seguro de que deseas eliminar la marca <strong>"{{ marca.nombre_marca }}"</strong>?</p>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+                <a href="{% url 'listar_marcas' %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'mi_app/base.html' %}
+
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        <i class="fas fa-user-circle"></i> Detalles del Cliente
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="text-primary">Información Personal</h4>
+                            <hr>
+                            <p><strong>DNI:</strong> {{ cliente.dni }}</p>
+                            <p><strong>Nombre Completo:</strong> 
+                                {{ cliente.nombre_cliente }} 
+                                {{ cliente.apellido_paterno }} 
+                                {{ cliente.apellido_materno }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="text-primary">Información de Contacto</h4>
+                            <hr>
+                            <p>
+                                <strong>Email:</strong> 
+                                {{ cliente.email_cliente|default:'No registrado' }}
+                            </p>
+                            <p>
+                                <strong>Teléfono:</strong> 
+                                {{ cliente.telefono_cliente|default:'No registrado' }}
+                            </p>
+                            <p>
+                                <strong>Dirección:</strong> 
+                                {{ cliente.direccion_cliente|default:'No registrada' }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h4 class="text-primary">Información Fiscal</h4>
+                            <hr>
+                            <p>
+                                <strong>RUC:</strong> 
+                                {{ cliente.ruc_cliente|default:'No registrado' }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="text-primary">Registro</h4>
+                            <hr>
+                            <p>
+                                <strong>Fecha de Registro:</strong> 
+                                {{ cliente.fecha_registro|date:"d/m/Y H:i" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12 text-center">
+                            <a href="{% url 'listado_de_clientes' %}" class="btn btn-secondary mr-2">
+                                <i class="fas fa-arrow-left"></i> Volver a Lista
+                            </a>
+                            <a href="{% url 'editar' cliente.pk %}" class="btn btn-warning mr-2">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a href="{% url 'eliminar' cliente.pk %}" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

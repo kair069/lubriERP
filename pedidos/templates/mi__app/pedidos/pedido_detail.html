@@ -1,0 +1,66 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Detalle del Pedido{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg">
+    <!-- Encabezado con degradado y texto blanco -->
+    <div class="card-header" style="background: linear-gradient(45deg, #1abc9c, #16a085); color: #fff;">
+      <h2 class="mb-0">Detalle del Pedido #{{ pedido.id }}</h2>
+    </div>
+    <!-- Cuerpo de la Card con dos columnas diferenciadas -->
+    <div class="card-body" style="background-color: #f8f9fa;">
+      <div class="row">
+        <!-- Primera columna (información básica) -->
+        <div class="col-md-6">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item" style="background-color: #d1ecf1; border: none; border-radius: 0.25rem; margin-bottom: 0.5rem;">
+              <strong>Proveedor:</strong> {{ pedido.proveedor }}
+            </li>
+            <li class="list-group-item" style="background-color: #d1ecf1; border: none; border-radius: 0.25rem; margin-bottom: 0.5rem;">
+              <strong>Fecha de Pedido:</strong> {{ pedido.fecha_pedido }}
+            </li>
+            <li class="list-group-item" style="background-color: #d1ecf1; border: none; border-radius: 0.25rem; margin-bottom: 0.5rem;">
+              <strong>Fecha de Entrega:</strong> {{ pedido.fecha_entrega }}
+            </li>
+          </ul>
+        </div>
+        <!-- Segunda columna (información financiera y descripción) -->
+        <div class="col-md-6">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item" style="background-color: #d4edda; border: none; border-radius: 0.25rem; margin-bottom: 0.5rem;">
+              <strong>Estado de Pago:</strong> {{ pedido.estado_pago }}
+            </li>
+            <li class="list-group-item" style="background-color: #d4edda; border: none; border-radius: 0.25rem; margin-bottom: 0.5rem;">
+              <strong>Costo Total:</strong> ${{ pedido.costo_total }}
+            </li>
+            <li class="list-group-item" style="background-color: #d4edda; border: none; border-radius: 0.25rem; margin-bottom: 0.5rem;">
+              <strong>Descripción:</strong>
+              <span class="text-muted">{{ pedido.descripcion|default:"Sin descripción" }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Footer con acciones -->
+    <div class="card-footer" style="background-color: #ffffff;">
+      <div class="d-flex justify-content-between">
+        <div>
+          <a href="{% url 'pedido_update' pedido.id %}" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Editar
+          </a>
+          <a href="{% url 'pedido_delete' pedido.id %}" class="btn btn-danger">
+            <i class="fas fa-trash-alt"></i> Eliminar
+          </a>
+        </div>
+        <div>
+          <a href="{% url 'pedido_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a la Lista
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

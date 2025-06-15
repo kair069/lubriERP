@@ -1,0 +1,591 @@
+{% extends 'mi_app/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<style>
+  .venta-container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .card {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border: none;
+  }
+  
+  .card-header {
+    background-color: rgba(0,0,0,0.03);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 1rem 1.5rem;
+  }
+  
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #495057;
+  }
+  
+  .input-group-text {
+    background-color: #f8f9fa;
+  }
+  
+  .btn-success {
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+  }
+  
+  .cliente-rapido {
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .cliente-rapido:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .required-field::after {
+    content: "*";
+    color: #dc3545;
+    margin-left: 4px;
+  }
+  
+  .ultima-venta {
+    font-size: 0.9rem;
+    border-left: 3px solid #6c757d;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  #spinnerLoading {
+    display: none;
+  }
+  
+  .text-limited {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Estilos para Select2 */
+  .select2-container--bootstrap-5 .select2-selection {
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    min-height: calc(1.5em + 0.75rem + 2px);
+    padding: 0.375rem 0.75rem;
+  }
+  
+  .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    color: #212529;
+    line-height: 1.5;
+  }
+  
+  .select2-container--bootstrap-5 .select2-dropdown {
+    border-color: #80bdff;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+  
+  .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
+    background-color: #0d6efd;
+    color: white;
+  }
+  
+  /* Estilos para tipos de documentos */
+  .tipo-documento-factura {
+    background-color: #cfe2ff !important;
+    color: #0d6efd !important;
+  }
+  
+  .tipo-documento-boleta {
+    background-color: #d1e7dd !important;
+    color: #146c43 !important;
+  }
+  
+  /* Estilos para cliente select2 */
+  .cliente-select2-item {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .cliente-select2-name {
+    font-weight: bold;
+  }
+  
+  .cliente-select2-dni {
+    font-size: 0.85em;
+    color: #6c757d;
+  }
+  
+  /* Spinner para cargas AJAX */
+  .ajax-loader {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 0.15em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border .75s linear infinite;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+  
+  .ajax-loader.visible {
+    opacity: 1;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 venta-container">
+  <!-- Título y navegación -->
+  <div class="d-sm-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="h3 mb-0">{{ titulo_pagina }}</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'listar_ventas' %}">Ventas</a></li>
+          <li class="breadcrumb-item active">Nueva venta</li>
+        </ol>
+      </nav>
+    </div>
+    <a href="{% url 'listar_ventas' %}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left me-2"></i>Volver a Ventas
+    </a>
+  </div>
+  
+  <!-- Mensaje de notificación -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+  
+  <div class="row">
+    <!-- Formulario principal -->
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Información de la venta</h5>
+          <div class="spinner-border spinner-border-sm text-primary" role="status" id="spinnerLoading">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <form method="post" id="ventaForm">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            
+            <div class="row g-3 mb-3">
+              <!-- Cliente -->
+              <div class="col-md-8">
+                <label for="{{ form.cliente.id_for_label }}" class="form-label required-field">
+                  {{ form.cliente.label }}
+                </label>
+                <div class="position-relative">
+                  {{ form.cliente }}
+                  <span class="ajax-loader position-absolute end-0 top-50 translate-middle-y me-3" id="clienteLoader"></span>
+                </div>
+                {% if form.cliente.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.cliente.errors }}
+                </div>
+                {% endif %}
+                <div class="form-text">Busque por nombre o DNI</div>
+              </div>
+              
+              <!-- Tipo de documento -->
+              <div class="col-md-4">
+                <label for="{{ form.tipo_documento.id_for_label }}" class="form-label required-field">
+                  {{ form.tipo_documento.label }}
+                </label>
+                {{ form.tipo_documento }}
+                {% if form.tipo_documento.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.tipo_documento.errors }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="row g-3 mb-3">
+              <!-- Número de documento -->
+              <div class="col-md-6">
+                <label for="{{ form.numero_documento.id_for_label }}" class="form-label required-field">
+                  {{ form.numero_documento.label }}
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text" id="prefijo-documento">V-</span>
+                  {{ form.numero_documento }}
+                </div>
+                {% if form.numero_documento.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.numero_documento.errors }}
+                </div>
+                {% endif %}
+                <div class="form-text">Se genera automáticamente</div>
+              </div>
+              
+              <!-- Total de la venta -->
+              <div class="col-md-6">
+                <label for="{{ form.total_venta.id_for_label }}" class="form-label required-field">
+                  {{ form.total_venta.label }}
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">S/.</span>
+                  {{ form.total_venta }}
+                </div>
+                {% if form.total_venta.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.total_venta.errors }}
+                </div>
+                {% endif %}
+                <div class="form-text">El total se calculará automáticamente al agregar productos</div>
+              </div>
+            </div>
+            
+            <div class="row g-3 mb-3">
+              <!-- Nombre del cliente -->
+              <div class="col-md-6">
+                <label for="{{ form.cliente_nombre.id_for_label }}" class="form-label required-field">
+                  {{ form.cliente_nombre.label }}
+                </label>
+                {{ form.cliente_nombre }}
+                {% if form.cliente_nombre.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.cliente_nombre.errors }}
+                </div>
+                {% endif %}
+              </div>
+              
+              <!-- Contacto del cliente -->
+              <div class="col-md-6">
+                <label for="{{ form.cliente_contacto.id_for_label }}" class="form-label">
+                  {{ form.cliente_contacto.label }}
+                </label>
+                {{ form.cliente_contacto }}
+                {% if form.cliente_contacto.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.cliente_contacto.errors }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Observaciones -->
+            {% if form.observaciones %}
+            <div class="mb-3">
+              <label for="{{ form.observaciones.id_for_label }}" class="form-label">
+                Observaciones
+              </label>
+              {{ form.observaciones }}
+              {% if form.observaciones.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.observaciones.errors }}
+              </div>
+              {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Botones de acción -->
+            <div class="d-flex justify-content-between mt-4">
+              <button type="button" class="btn btn-outline-secondary" onclick="window.history.back();">
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
+              <div>
+                <button type="submit" name="guardar_continuar" class="btn btn-primary me-2">
+                  <i class="fas fa-save me-2"></i>Guardar
+                </button>
+                <button type="submit" name="guardar_detalle" class="btn btn-success">
+                  <i class="fas fa-check me-2"></i>Guardar y agregar productos
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Panel lateral -->
+    <div class="col-lg-4">
+      <!-- Últimas ventas -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Últimas ventas</h5>
+        </div>
+        <div class="card-body">
+          {% if ultimas_ventas %}
+            {% for venta in ultimas_ventas %}
+              <div class="ultima-venta">
+                <div class="d-flex justify-content-between">
+                  <strong>{{ venta.numero_documento }}</strong>
+                  <span>S/. {{ venta.total_venta }}</span>
+                </div>
+                <div class="text-muted small">
+                  {{ venta.cliente_nombre }} - {{ venta.fecha_venta|date:"d/m/Y H:i" }}
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted mb-0">No hay ventas recientes</p>
+          {% endif %}
+          <div class="text-center mt-3">
+            <a href="{% url 'listar_ventas' %}" class="btn btn-sm btn-outline-secondary">
+              Ver todas las ventas
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Clientes frecuentes -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-users me-2"></i>Clientes recientes</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-2">
+            {% for cliente in clientes_recientes %}
+              <div class="col-6">
+                <div class="p-2 border rounded cliente-rapido" 
+                     onclick="seleccionarCliente('{{ cliente.id }}', '{{ cliente.nombre_cliente }}', '{{ cliente.telefono_cliente|default:'' }}')">
+                  <div class="fw-bold text-limited">{{ cliente.nombre_cliente }}</div>
+                  <div class="small text-muted text-limited">{{ cliente.dni }}</div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="col-12">
+                <p class="text-muted mb-0">No hay clientes recientes</p>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="text-center mt-3">
+            <a href="#" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevoCliente">
+              <i class="fas fa-plus me-1"></i>Nuevo cliente
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Ayuda y consejos -->
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Ayuda</h5>
+        </div>
+        <div class="card-body">
+          <ul class="mb-0 ps-3">
+            <li>Complete los datos de la venta</li>
+            <li>El total puede ajustarse después al agregar productos</li>
+            <li>Al guardar, podrá registrar los productos vendidos</li>
+            <li>Factura requiere RUC del cliente</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal para nuevo cliente (placeholder - implementar según necesidad) -->
+  <div class="modal fade" id="modalNuevoCliente" tabindex="-1" aria-labelledby="modalNuevoClienteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalNuevoClienteLabel">Registrar Nuevo Cliente</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Aquí iría el formulario de nuevo cliente -->
+          <p class="text-muted">Formulario de registro de cliente (implementar según necesidad)</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary">Guardar Cliente</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar Select2 para selector de clientes con AJAX
+    $('.select2-cliente').select2({
+      theme: 'bootstrap-5',
+      width: '100%',
+      placeholder: 'Buscar cliente por nombre o DNI',
+      allowClear: true,
+      ajax: {
+        url: '{% url "buscar_clientes_ajax" %}',
+        dataType: 'json',
+        delay: 250,
+        data: function(params) {
+          return {
+            q: params.term, // término de búsqueda
+            page: params.page || 1
+          };
+        },
+        processResults: function(data, params) {
+          params.page = params.page || 1;
+          return {
+            results: data.results,
+            pagination: data.pagination
+          };
+        },
+        cache: true
+      },
+      templateResult: formatClienteResult,
+      templateSelection: formatClienteSelection
+    });
+    
+    // Inicializar Select2 para selector de tipos de documento
+    $('.select2-tipo-doc').select2({
+      theme: 'bootstrap-5',
+      width: '100%',
+      minimumResultsForSearch: Infinity // Desactivar búsqueda (pocos items)
+    });
+    
+    // Formatear resultados de búsqueda de clientes
+    function formatClienteResult(cliente) {
+      if (!cliente.id) return cliente.text;
+      
+      return $(`
+        <div class="cliente-select2-item">
+          <div class="cliente-select2-name">${cliente.text.split(' - ')[0]}</div>
+          <div class="cliente-select2-dni">DNI: ${cliente.text.split(' - ')[1]}</div>
+        </div>
+      `);
+    }
+    
+    // Formatear selección de cliente
+    function formatClienteSelection(cliente) {
+      if (!cliente.id) return cliente.text;
+      return cliente.text.split(' - ')[0];
+    }
+    
+    // Evento de cambio para el cliente
+    $('#{{ form.cliente.id_for_label }}').on('change', function() {
+      const clienteId = $(this).val();
+      if (clienteId) {
+        // Mostrar spinner de carga
+        $('#clienteLoader').addClass('visible');
+        
+        // Realizar petición AJAX para obtener info del cliente
+        fetch(`{% url 'obtener_info_cliente_ajax' cliente_id=0 %}`.replace('0', clienteId))
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Actualizar campos del formulario con los datos del cliente
+              $('#{{ form.cliente_nombre.id_for_label }}').val(data.cliente.nombre_cliente);
+              $('#{{ form.cliente_contacto.id_for_label }}').val(data.cliente.contacto);
+            } else {
+              console.error('Error al obtener datos del cliente:', data.error);
+            }
+          })
+          .catch(error => {
+            console.error('Error en la petición AJAX:', error);
+          })
+          .finally(() => {
+            // Ocultar spinner de carga
+            $('#clienteLoader').removeClass('visible');
+          });
+      }
+    });
+    
+    // Actualizar prefijo del documento según tipo
+    function actualizarTipoDocumento() {
+      const tipoDoc = $('#{{ form.tipo_documento.id_for_label }}').val();
+      const tipoSelector = $('#{{ form.tipo_documento.id_for_label }}');
+      let prefijo = 'V-';
+      
+      // Remover clases previas
+      tipoSelector.removeClass('tipo-documento-factura tipo-documento-boleta');
+      
+      // Cambiar prefijo según tipo seleccionado
+      if (tipoDoc) {
+        const tipoTexto = $('#{{ form.tipo_documento.id_for_label }} option:selected').text().trim();
+        if (tipoTexto === 'Factura') {
+          prefijo = 'F-';
+          tipoSelector.addClass('tipo-documento-factura');
+        } else if (tipoTexto === 'Boleta') {
+          prefijo = 'B-';
+          tipoSelector.addClass('tipo-documento-boleta');
+        }
+      }
+      
+      // Actualizar el texto del prefijo
+      $('#prefijo-documento').text(prefijo);
+    }
+    
+    // Llamar a la función inicialmente
+    actualizarTipoDocumento();
+    
+    // Asignar la función al evento change
+    $('#{{ form.tipo_documento.id_for_label }}').on('change', function() {
+      actualizarTipoDocumento();
+      
+      // Generar nuevo número de documento basado en el tipo
+      const tipoTexto = $(this).find('option:selected').text().trim();
+      const currentNum = $('#{{ form.numero_documento.id_for_label }}').val();
+      
+      // Si hay un cambio entre Factura y Boleta, sugerir actualizar el número
+      if (currentNum && ((tipoTexto === 'Factura' && !currentNum.startsWith('F-')) || 
+                         (tipoTexto === 'Boleta' && !currentNum.startsWith('B-')))) {
+        // Aquí podrías hacer una petición AJAX para obtener un nuevo número
+        // Por ahora solo cambiamos el prefijo como ejemplo
+        const newPrefix = tipoTexto === 'Factura' ? 'F-' : 'B-';
+        const numPart = currentNum.split('-').slice(1).join('-');
+        $('#{{ form.numero_documento.id_for_label }}').val(newPrefix + numPart);
+      }
+    });
+    
+    // Función para seleccionar cliente rápido desde el panel lateral
+    window.seleccionarCliente = function(id, nombre, telefono) {
+      try {
+        // Crear una nueva opción si no existe
+        if ($('#{{ form.cliente.id_for_label }} option[value="' + id + '"]').length === 0) {
+          const newOption = new Option(nombre, id, true, true);
+          $('#{{ form.cliente.id_for_label }}').append(newOption);
+        }
+        
+        // Establecer el valor en el select y disparar el evento change
+        $('#{{ form.cliente.id_for_label }}').val(id).trigger('change');
+        
+        // Actualizar campos relacionados manualmente por si el evento falla
+        $('#{{ form.cliente_nombre.id_for_label }}').val(nombre);
+        $('#{{ form.cliente_contacto.id_for_label }}').val(telefono || '');
+      } catch (e) {
+        console.error('Error al seleccionar cliente:', e);
+        // Fallback manual si select2 falla
+        document.getElementById('{{ form.cliente.id_for_label }}').value = id;
+        document.getElementById('{{ form.cliente_nombre.id_for_label }}').value = nombre;
+        document.getElementById('{{ form.cliente_contacto.id_for_label }}').value = telefono || '';
+      }
+    };
+    
+    // Validación de formulario básica
+    const form = document.getElementById('ventaForm');
+    form.addEventListener('submit', function(event) {
+      // Verificar que haya cliente y documento seleccionados
+      const clienteId = $('#{{ form.cliente.id_for_label }}').val();
+      const clienteNombre = $('#{{ form.cliente_nombre.id_for_label }}').val();
+      const numDocumento = $('#{{ form.numero_documento.id_for_label }}').val();
+      
+      if (!clienteId || !clienteNombre || !numDocumento) {
+        // Prevenir envío y mostrar mensaje
+        event.preventDefault();
+        alert('Por favor complete todos los campos requeridos.');
+        return false;
+      }
+      
+      // Mostrar spinner de carga durante el envío
+      document.getElementById('spinnerLoading').style.display = 'inline-block';
+    });
+  });
+</script>
+{% endblock %}

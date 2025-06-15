@@ -1,0 +1,31 @@
+{% extends 'mi_app/base.html' %}
+{% block title %}Detalle del Pedido{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Detalle del Pedido</h1>
+
+<div class="card">
+    <div class="card-header">
+        Pedido: {{ pedido.numero_pedido }}
+    </div>
+    <div class="card-body">
+        <p><strong>Proveedor:</strong> {{ pedido.proveedor }}</p>
+        <p><strong>Estado de Pago:</strong> {{ pedido.estado_pago }}</p>
+        <p><strong>Método de Pago:</strong> {{ pedido.metodo_pago }}</p>
+        <p><strong>Fecha de Pedido:</strong> {{ pedido.fecha_pedido|date:"d/m/Y H:i" }}</p>
+        <p><strong>Fecha de Entrega:</strong> 
+            {% if pedido.fecha_entrega %}
+                {{ pedido.fecha_entrega|date:"d/m/Y H:i" }}
+            {% else %}
+                No asignada
+            {% endif %}
+        </p>
+        <p><strong>Descripción:</strong> {{ pedido.descripcion|default:"-" }}</p>
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'pedido_update' pedido.pk %}" class="btn btn-warning">Editar</a>
+        <a href="{% url 'pedido_delete' pedido.pk %}" class="btn btn-danger">Eliminar</a>
+        <a href="{% url 'pedido_list' %}" class="btn btn-secondary">Volver a la Lista</a>
+    </div>
+</div>
+{% endblock %}

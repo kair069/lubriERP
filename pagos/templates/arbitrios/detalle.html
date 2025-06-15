@@ -1,0 +1,29 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Detalle del Arbitrio{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>🏛️ Detalle del Arbitrio</h2>
+  
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h4>{{ arbitrio.municipio }}</h4>
+    </div>
+    <div class="card-body">
+      <p><strong>Monto Pagado:</strong> S/ {{ arbitrio.monto }}</p>
+      <p><strong>Fecha de Pago:</strong> {{ arbitrio.fecha_pago }}</p>
+      <p><strong>Estado:</strong> 
+        {% if arbitrio.estado == "Pagado" %}
+          <span class="badge bg-success">✅ Pagado</span>
+        {% else %}
+          <span class="badge bg-danger">⏳ Pendiente</span>
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
+  <a href="{% url 'arbitrios_editar' arbitrio.id %}" class="btn btn-warning mt-3">✏️ Editar</a>
+  <a href="{% url 'arbitrios_lista' %}" class="btn btn-secondary mt-3">🔙 Volver</a>
+</div>
+{% endblock %}

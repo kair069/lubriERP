@@ -1,0 +1,123 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+  <h1>Listado de Compras</h1>
+
+  <!-- Botón para Crear Nueva Compra -->
+  <div class="mb-3">
+    <a href="{% url 'crear_compra' %}" class="btn btn-success">➕ Crear Compra</a>
+  </div>
+
+  <!-- Filtro por Fecha -->
+  <form method="GET" class="d-flex align-items-center gap-2">
+    <label for="fecha_inicio" class="fw-bold">Desde:</label>
+    <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ fecha_inicio }}">
+
+    <label for="fecha_fin" class="fw-bold">Hasta:</label>
+    <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ fecha_fin }}">
+
+    <button type="submit" class="btn btn-primary">🔍 Filtrar</button>
+    <a href="{% url 'listar_compras' %}" class="btn btn-secondary">🔄 Reset</a>
+  </form>
+
+  <!-- Tabla de Compras -->
+  <table class="table table-hover mt-3">
+    <thead class="table-dark text-center">
+      <tr>
+        <th>ID</th>
+        <th>Proveedor</th>
+        <th>Fecha de Compra</th>
+        <th>Total de Compra (S/)</th>
+        <th>Documento PDF</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for compra in compras %}
+        <tr class="align-middle text-center">
+          <td>{{ compra.id }}</td>
+          <td>{{ compra.proveedor }}</td>
+          <td class="bg-light text-primary fw-bold">
+            {{ compra.fecha_compra|date:"d M Y, " }} <span class="text-dark">{{ compra.fecha_compra|date:"H:i" }}</span>
+          </td>
+          <td class="bg-light">{{ compra.total_compra }}</td>
+          <td>
+            {% if compra.documento_pdf %}
+              <button type="button" class="btn btn-outline-primary btn-sm ver-pdf-btn" data-bs-toggle="modal" data-bs-target="#pdfModal" data-pdf-url="{{ compra.documento_pdf.url }}">
+                📄 Ver PDF
+              </button>
+            {% else %}
+              <span class="text-muted">No disponible</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'editar_compra' compra.id %}" class="btn btn-warning btn-sm">✏️ Editar</a>
+            <a href="{% url 'eliminar_compra' compra.id %}" class="btn btn-danger btn-sm">🗑️ Eliminar</a>
+            <a href="{% url 'listar_detalles' compra.id %}" class="btn btn-info btn-sm">🔍 Ver Detalles</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6" class="text-center text-muted">No hay compras registradas.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Paginación -->
+  <nav>
+    <ul class="pagination justify-content-center">
+      {% if compras.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">⏪ Primero</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ compras.previous_page_number }}">⬅️ Anterior</a></li>
+      {% endif %}
+
+      <li class="page-item active"><span class="page-link">{{ compras.number }}</span></li>
+
+      {% if compras.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ compras.next_page_number }}">Siguiente ➡️</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ compras.paginator.num_pages }}">Último ⏩</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  <!-- Modal para mostrar el PDF -->
+  <div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="pdfModalLabel">Vista Previa del PDF</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Contenedor para mostrar el PDF -->
+          <embed id="pdfIframe" width="100%" height="600px" type="application/pdf" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Script para cargar el PDF en el modal
+    document.addEventListener("DOMContentLoaded", function () {
+      var pdfModal = document.getElementById('pdfModal');
+      var pdfIframe = document.getElementById('pdfIframe');
+
+      document.querySelectorAll('.ver-pdf-btn').forEach(button => {
+        button.addEventListener('click', function () {
+          var pdfUrl = this.getAttribute('data-pdf-url');
+          pdfIframe.setAttribute('src', pdfUrl);
+        });
+      });
+
+      // Limpiar el embed al cerrar el modal
+      pdfModal.addEventListener('hidden.bs.modal', function () {
+        pdfIframe.setAttribute('src', '');
+      });
+    });
+  </script>
+
+{% endblock %}

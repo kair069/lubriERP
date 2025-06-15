@@ -1,0 +1,109 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}📦 Detalle del Pedido #{{ pedido.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">📦 Detalle del Pedido <strong>#{{ pedido.id }}</strong></h2>
+    </div>
+    <div class="card-body">
+      <p><strong>🏢 Proveedor:</strong> {{ pedido.proveedor }}</p>
+      <p><strong>📅 Fecha de Pedido:</strong> {{ pedido.fecha_pedido|date:"d M, Y" }}</p>
+      <p><strong>🚚 Fecha de Entrega:</strong> {{ pedido.fecha_entrega|date:"d M, Y" }}</p>
+      <p><strong>💰 Estado de Pago:</strong> 
+        {% if pedido.estado_pago == "pendiente" %}
+          <span class="badge bg-warning text-dark">⌛ Pendiente</span>
+        {% elif pedido.estado_pago == "procesado" %}
+          <span class="badge bg-info text-dark">🔄 Procesado</span>
+        {% elif pedido.estado_pago == "pagado" %}
+          <span class="badge bg-success text-white">✅ Pagado</span>
+        {% else %}
+          <span class="badge bg-secondary text-white">❓ {{ pedido.estado_pago }}</span>
+        {% endif %}
+      </p>
+      <p><strong>💲 Costo Total:</strong> <span class="text-success fw-bold">💲{{ pedido.costo_total|floatformat:2 }}</span></p>
+      <p><strong>📝 Descripción:</strong> {{ pedido.descripcion }}</p>
+    </div>  
+  </div>
+
+  <h3 class="mt-4">📋 Detalles del Pedido</h3>
+  <a href="{% url 'detallepedido_create' pedido.id %}" class="btn btn-success mb-3">
+    ➕ Agregar Detalle
+  </a>
+  
+  {% if detalles %}
+  <div class="table-responsive">
+    <table class="table table-hover table-bordered shadow-sm">
+      <thead class="bg-dark text-white text-center">
+        <tr>
+          <th>🆔 ID</th>
+          <th>📦 Producto</th>
+          <th>🔢 Cantidad</th>
+          <th>💲 Precio Unitario</th>
+          <th>💰 Subtotal</th>
+          <th>⚙️ Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for detalle in detalles %}
+        <tr class="align-middle text-center">
+          <td><strong>#{{ detalle.id }}</strong></td>
+          <td>📦 {{ detalle.producto }}</td>
+          <td>🔢 {{ detalle.cantidad }}</td>
+          <td>💲{{ detalle.precio_unitario|floatformat:2 }}</td>
+          <td><strong>💰 {{ detalle.subtotal|floatformat:2 }}</strong></td>
+          <td>
+            <div class="btn-group" role="group">
+              <a href="{% url 'detallepedido_detail' detalle.id %}" class="btn btn-outline-info btn-sm" title="Ver Detalle">
+                <i class="fas fa-eye"></i>
+              </a>
+              <a href="{% url 'detallepedido_update' detalle.id %}" class="btn btn-outline-warning btn-sm text-dark" title="Editar">
+                <i class="fas fa-edit"></i>
+              </a>
+              <a href="{% url 'detallepedido_delete' detalle.id %}" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                <i class="fas fa-trash-alt"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center mt-3">
+    <i class="fas fa-box-open fa-2x"></i>
+    <p class="mt-2">📭 No hay detalles registrados para este pedido.</p>
+  </div>
+  {% endif %}
+  
+  <a href="{% url 'pedido_list' %}" class="btn btn-secondary mt-3">
+    ⬅️ Volver a la Lista de Pedidos
+  </a>
+</div>
+
+<style>
+  tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .btn-group .btn {
+    margin-right: 5px;
+  }
+
+  .badge {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+
+  .table {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+</style>
+
+{% endblock %}

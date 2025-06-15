@@ -1,0 +1,115 @@
+{% extends "mi_app/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Chatbot de Inventario</h2>
+    <div id="chatbox">
+        <div id="messages"></div>
+    </div>
+    <div class="input-container">
+        <input type="text" id="user-input" placeholder="Escribe tu pregunta..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+</div>
+
+<script>
+function sendMessage() {
+    let userInput = document.getElementById("user-input").value.trim();
+    if (!userInput) return;
+    
+    let messagesDiv = document.getElementById("messages");
+    messagesDiv.innerHTML += `<div class="message user"><strong>Tú:</strong> ${userInput}</div>`;
+    document.getElementById("user-input").value = "";
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    
+    fetch("/api/chatbot/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pregunta: userInput })
+    })
+    .then(response => response.json())
+    .then(data => {
+        messagesDiv.innerHTML += `<div class="message bot"><strong>Chatbot:</strong> ${data.respuesta}</div>`;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    })
+    .catch(error => {
+        messagesDiv.innerHTML += `<div class="message error">Error al conectar con el chatbot.</div>`;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+}
+
+function handleKeyPress(event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+}
+</script>
+
+<style>
+.container {
+    width: 50%;
+    margin: auto;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+#chatbox {
+    border: 1px solid #ccc;
+    padding: 10px;
+    height: 300px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    background: #f9f9f9;
+    border-radius: 10px;
+}
+#messages {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.message {
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+.user {
+    background: #d1e7ff;
+    align-self: flex-end;
+    text-align: right;
+}
+.bot {
+    background: #e2e2e2;
+    align-self: flex-start;
+    text-align: left;
+}
+.error {
+    color: red;
+    background: #ffd1d1;
+}
+.input-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+input {
+    width: 70%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+button {
+    padding: 10px 15px;
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+button:hover {
+    background: #0056b3;
+}
+</style>
+
+{% endblock %}

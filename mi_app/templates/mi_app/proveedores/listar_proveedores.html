@@ -1,0 +1,43 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Lista de Proveedores</h1>
+
+    {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="mb-3">
+        <a href="{% url 'crear_proveedor' %}" class="btn btn-primary">Nuevo Proveedor</a>
+    </div>
+    
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for proveedor in proveedores %}
+            <tr>
+                <td>{{ proveedor.nombre_proveedor }}</td>
+                <td>{{ proveedor.telefono }}</td>
+                <td>{{ proveedor.email }}</td>
+                <td>
+                    <a href="{% url 'editar_proveedor' proveedor.id %}" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="{% url 'eliminar_proveedor' proveedor.id %}" class="btn btn-danger btn-sm">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

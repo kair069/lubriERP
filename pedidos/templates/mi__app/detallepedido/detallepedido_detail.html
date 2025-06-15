@@ -1,0 +1,19 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Detalle del Detalle del Pedido{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Detalle del Detalle del Pedido</h2>
+  <div class="card">
+    <div class="card-body">
+      <p><strong>ID:</strong> {{ detalle.id }}</p>
+      <p><strong>Producto:</strong> {{ detalle.producto }}</p>
+      <p><strong>Cantidad:</strong> {{ detalle.cantidad }}</p>
+      <p><strong>Precio Unitario:</strong> {{ detalle.precio_unitario }}</p>
+      <p><strong>Subtotal:</strong> {{ detalle.subtotal }}</p>
+    </div>
+  </div>
+  <a href="{% url 'pedido_combined_detail' detalle.pedido.id %}" class="btn btn-secondary mt-3">Volver al Pedido</a>
+</div>
+{% endblock %}

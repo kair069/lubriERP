@@ -1,0 +1,99 @@
+<!-- dashboardproductos/templates/dashboardproductos/stock_por_marca.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Stock por Marca</title>
+  <!-- Bootstrap CSS para estilizar el formulario -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="mb-4">Stock de Productos por Marca</h1>
+    
+    <!-- Formulario de filtrado -->
+    <form method="get" class="mb-4">
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label for="categoria">Categoría</label>
+          <select name="categoria" id="categoria" class="form-control">
+            <option value="">Todas</option>
+            {% for cat in categorias %}
+              <option value="{{ cat.nombre_categoria }}" {% if request.GET.categoria == cat.nombre_categoria %}selected{% endif %}>
+                {{ cat.nombre_categoria }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group col-md-4">
+          <label for="marca">Marca</label>
+          <select name="marca" id="marca" class="form-control">
+            <option value="">Todas</option>
+            {% for mar in marcas %}
+              <option value="{{ mar.nombre_marca }}" {% if request.GET.marca == mar.nombre_marca %}selected{% endif %}>
+                {{ mar.nombre_marca }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group col-md-4 align-self-end">
+          <button type="submit" class="btn btn-primary btn-block">Filtrar</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Canvas para el gráfico de barras -->
+    <canvas id="stockChart" width="400" height="200"></canvas>
+  </div>
+
+  <script>
+    // Convertir los datos pasados desde la vista a un objeto JavaScript.
+    const chartData = {{ data|safe }};
+    // Ejemplo de chartData: [{ "marca__nombre_marca": "Marca A", "total_stock": 150 }, ...]
+
+    // Extraer etiquetas (nombres de marca) y datos (total de stock)
+    const labels = chartData.map(item => item.marca__nombre_marca);
+    const stocks = chartData.map(item => item.total_stock);
+
+    // Configuración y creación del gráfico con Chart.js
+    const ctx = document.getElementById('stockChart').getContext('2d');
+    const stockChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Stock total',
+          data: stocks,
+          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          },
+          title: {
+            display: true,
+            text: 'Cantidad total de productos por marca'
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

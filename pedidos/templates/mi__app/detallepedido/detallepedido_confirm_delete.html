@@ -1,0 +1,15 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Confirmar Eliminación del Detalle del Pedido{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Confirmar Eliminación del Detalle del Pedido</h2>
+  <p>¿Estás seguro de que deseas eliminar este detalle?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a href="{% url 'pedido_combined_detail' object.pedido.id %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

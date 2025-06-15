@@ -1,0 +1,17 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Eliminar Cliente</h1>
+    
+    <div class="alert alert-warning">
+        <p>¿Estás seguro de que deseas eliminar al cliente <strong>{{ cliente.nombre_cliente }}</strong>?</p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a href="{% url 'listar_clientes' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

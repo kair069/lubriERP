@@ -1,0 +1,142 @@
+{% extends 'mi_app/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        <i class="fas fa-user"></i> 
+                        {% if form.instance.pk %}
+                            Editar Cliente
+                        {% else %}
+                            Nuevo Cliente
+                        {% endif %}
+                    </h2>
+                </div>
+                
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                {{ form.dni|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                {{ form.nombre_cliente|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.apellido_paterno|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.apellido_materno|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.email_cliente|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.telefono_cliente|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.direccion_cliente|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.ruc_cliente|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="form-group text-right">
+                            <a href="{% url 'listado_de_clientes' %}" class="btn btn-secondary mr-2">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 
+                                {% if form.instance.pk %}
+                                    Guardar Cambios
+                                {% else %}
+                                    Crear Cliente
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dniInput = document.getElementById('id_dni');
+        const telefonoInput = document.getElementById('id_telefono_cliente');
+        const rucInput = document.getElementById('id_ruc_cliente');
+        const emailInput = document.getElementById('id_email_cliente');
+
+        // Validación de DNI en tiempo real
+        dniInput.addEventListener('input', function() {
+            const dniPattern = /^\d{8}$/;
+            if (!dniPattern.test(this.value)) {
+                this.setCustomValidity('El DNI debe tener 8 dígitos numéricos');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Validación de teléfono en tiempo real
+        telefonoInput.addEventListener('input', function() {
+            const telefonoPattern = /^9\d{8}$/;
+            if (this.value && !telefonoPattern.test(this.value)) {
+                this.setCustomValidity('El teléfono debe comenzar con 9 y tener 9 dígitos');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Validación de RUC en tiempo real
+        rucInput.addEventListener('input', function() {
+            const rucPattern = /^\d{11}$/;
+            if (this.value && !rucPattern.test(this.value)) {
+                this.setCustomValidity('El RUC debe tener 11 dígitos numéricos');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Validación de email en tiempo real
+        emailInput.addEventListener('input', function() {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (this.value && !emailPattern.test(this.value)) {
+                this.setCustomValidity('Ingrese un correo electrónico válido');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    });
+</script>
+{% endblock %}

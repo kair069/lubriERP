@@ -1,0 +1,200 @@
+{% extends "mi_app/base.html" %}
+
+{% block content %}
+    <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+        <div id="chat-container" class="chat-wrapper">
+            <h2 class="chat-title">Chatbot de Inventario Modelo Random Forest 🤖</h2>
+            <div id="chat-box" class="chat-box"></div>
+            <p class="typing-indicator">🤖 Escribiendo...</p>
+            <div class="input-container">
+                <input type="text" id="pregunta" placeholder="Escribe tu pregunta aquí..." onkeypress="handleKeyPress(event)" />
+                <button class="send-btn" onclick="enviarPregunta()">Enviar</button>
+            </div>
+            <div class="quick-questions">
+                <button onclick="setPregunta('¿Cuántas unidades de Mobil 1 5W-30 tengo en stock?')">📦 Stock Mobil 1</button>
+                <button onclick="setPregunta('¿Cuál es el precio del Castrol Magnatec?')">💰 Precio Castrol</button>
+                <button onclick="setPregunta('¿Necesito reponer Shell Helix HX8?')">🔄 Reposición Shell</button>
+                <button onclick="setPregunta('¿Cuánto vende en promedio el líquido de frenos?')">📊 Ventas líquido de frenos</button>
+            </div>
+        </div>
+        <div class="robot-container">
+    {% load static %}
+    <img src="{% static 'mi_app/imagenes/robot.gif' %}" alt="Robot animado" class="robot-img">    
+</div>
+
+
+    </div>
+
+    <style>
+        .chat-wrapper {
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2E3192, #1BFFFF);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .chat-title {
+            text-align: center;
+            color: #fff;
+            font-size: 1.5rem;
+        }
+
+        .chat-box {
+            height: 350px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f0f5ff;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mensaje {
+            max-width: 75%;
+            padding: 10px;
+            margin: 8px;
+            border-radius: 10px;
+            display: inline-block;
+            opacity: 0;
+            animation: slideIn 0.3s forwards ease-out;
+            font-size: 14px;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .usuario {
+            background: #4CAF50;
+            align-self: flex-end;
+            text-align: right;
+            color: #fff;
+        }
+
+        .bot {
+            background: #ffffff;
+            border: 1px solid #4CAF50;
+            color: #333;
+        }
+
+        .typing-indicator {
+            display: none;
+            color: gray;
+            font-style: italic;
+            text-align: left;
+            margin-top: 5px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .send-btn {
+            background: #ff5722;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .send-btn:hover {
+            background: #e64a19;
+        }
+
+        .quick-questions {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .quick-questions button {
+            background: #6200ea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .quick-questions button:hover {
+            background: #3700b3;
+        }
+
+        @media (max-width: 500px) {
+            .chat-title {
+                font-size: 1.2rem;
+            }
+
+            .quick-questions button {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
+    </style>
+
+    <script>
+        function setPregunta(texto) {
+            document.getElementById("pregunta").value = texto;
+            enviarPregunta();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                enviarPregunta();
+            }
+        }
+
+        function enviarPregunta() {
+            const preguntaInput = document.getElementById("pregunta");
+            const pregunta = preguntaInput.value.trim();
+            if (!pregunta) return;
+
+            const chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<div class="mensaje usuario">🧑‍💼 ${pregunta}</div>`;
+            preguntaInput.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            document.querySelector(".typing-indicator").style.display = "block";
+
+            fetch("http://127.0.0.1:6549/api/chatbot/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ pregunta })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.querySelector(".typing-indicator").style.display = "none";
+                chatBox.innerHTML += `<div class="mensaje bot">🤖 ${data.respuesta}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => {
+                document.querySelector(".typing-indicator").style.display = "none";
+                chatBox.innerHTML += `<div class="mensaje bot">⚠️ Error al conectar con el chatbot.</div>`;
+                console.error("Error:", error);
+            });
+        }
+    </script>
+{% endblock %}

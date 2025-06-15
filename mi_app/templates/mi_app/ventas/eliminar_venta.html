@@ -1,0 +1,13 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+  <h1>Confirmar Eliminación</h1>
+  
+  <p>¿Estás seguro que deseas eliminar la venta con N° de Documento <strong>{{ venta.numero_documento }}</strong>?</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a href="{% url 'listar_ventas' %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}

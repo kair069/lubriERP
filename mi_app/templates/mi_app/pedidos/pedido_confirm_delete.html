@@ -1,0 +1,14 @@
+{% extends 'mi_app/base.html' %}
+{% block title %}Eliminar Pedido{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Eliminar Pedido</h1>
+<div class="alert alert-danger" role="alert">
+    ¿Está seguro que desea eliminar el pedido <strong>{{ pedido.numero_pedido }}</strong>?
+</div>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a href="{% url 'pedido_list' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

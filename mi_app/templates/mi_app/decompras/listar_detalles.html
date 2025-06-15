@@ -1,0 +1,31 @@
+{% extends 'mi_app/base.html' %}
+{% block content %}
+  <h2>Detalles de la Compra {{ compra.id }}</h2>
+  <a href="{% url 'agregar_detalle' compra.id %}" class="btn btn-primary">Agregar Detalle</a>
+  
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio Unitario</th>
+        <th>Subtotal</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for detalle in detalles %}
+        <tr>
+          <td>{{ detalle.producto.nombre_producto }}</td>
+          <td>{{ detalle.cantidad }}</td>
+          <td>{{ detalle.precio_unitario }}</td>
+          <td>{{ detalle.subtotal }}</td>
+          <td>
+            <a href="{% url 'editar_detalle' compra.id detalle.id %}">Editar</a> |
+            <a href="{% url 'eliminar_detalle' compra.id detalle.id %}">Eliminar</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

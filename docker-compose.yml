@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: lubricentroalex
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: K6P5RAeT6J4obXN9PBfzJnV86ak0VXy3
+    ports:
+      - "5432:5432" # Exponer el puerto 5432 de la base de datos
+    networks:
+      - app-network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    volumes:
+      - .:/app
+    ports:
+      - "9657:8000" # Mapea el puerto 8000 del contenedor al puerto 9657 de tu máquina local
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,50 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Editar Cliente</h2>
+
+    <!-- Mostrar mensajes de error si existen -->
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Por favor, corrija los errores a continuación:</strong>
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        
+       <div class="mb-3">
+    <label class="form-label">DNI</label>
+    {{ form.dni }}  {# Campo deshabilitado (no se envía en POST) #}
+    <input type="hidden" name="dni" value="{{ form.dni.value }}">  {# Campo oculto para enviarlo en POST #}
+</div>
+        <div class="mb-3">
+            <label class="form-label">RUC</label>
+            {{ form.ruc_cliente }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Teléfono</label>
+            {{ form.telefono_cliente }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            {{ form.email_cliente }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Dirección</label>
+            {{ form.direccion_cliente }}
+        </div>
+
+        <button type="submit" class="btn btn-success">Guardar Cambios</button>
+        <a href="{% url 'lista_clientes' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

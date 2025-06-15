@@ -1,0 +1,20 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Eliminar Arbitrio{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="alert alert-danger">
+    <h4>⚠️ ¿Estás seguro de que deseas eliminar este arbitrio?</h4>
+    <p><strong>Municipio:</strong> {{ arbitrio.municipio }}</p>
+    <p><strong>Monto Pagado:</strong> S/ {{ arbitrio.monto }}</p>
+    <p><strong>Fecha de Pago:</strong> {{ arbitrio.fecha_pago }}</p>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">🗑️ Confirmar Eliminación</button>
+    <a href="{% url 'arbitrios_lista' %}" class="btn btn-secondary">❌ Cancelar</a>
+  </form>
+</div>
+{% endblock %}

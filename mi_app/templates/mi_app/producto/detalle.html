@@ -1,0 +1,295 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+<div class="container-fluid px-4 py-5 product-detail-container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate__animated animate__fadeIn">
+                <div class="row g-0">
+                    <!-- Product Image Section -->
+                    <div class="col-md-5 position-relative">
+                        <div class="h-100 position-relative product-image-wrapper">
+                            {% if producto.imagen_url %}
+                                <div class="image-container">
+                                    <img src="{{ producto.imagen_url }}" 
+                                         alt="Imagen del producto" 
+                                         class="product-image w-100 h-100 object-fit-cover" 
+                                         data-bs-toggle="modal" 
+                                         data-bs-target="#imageModal">
+                                    <div class="image-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+                                        <span class="badge bg-dark bg-opacity-50 p-2">
+                                            <i class="bi bi-zoom-in me-1"></i> Ampliar 🔍
+                                        </span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted no-image-placeholder">
+                                    <p class="text-center">
+                                        <i class="bi bi-image-alt display-4 text-secondary"></i>
+                                        <br>
+                                        Imagen no disponible 📷❌
+                                    </p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Product Details Section -->
+                    <div class="col-md-7">
+                        <div class="card-body p-4">
+                            <h2 class="card-title mb-3 text-primary d-flex align-items-center">
+                                {{ producto.nombre_producto }}
+                                {% if producto.es_nuevo %}
+                                    <span class="badge bg-success ms-2 small">Nuevo 🆕</span>
+                                {% endif %}
+                            </h2>
+                            
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-tag text-primary me-2"></i>
+                                        <span class="fw-bold text-muted">Marca: 🏷️</span>
+                                    </div>
+                                    <p class="mb-3 ps-4">{{ producto.marca }}</p>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-collection text-primary me-2"></i>
+                                        <span class="fw-bold text-muted">Categoría: 📦</span>
+                                    </div>
+                                    <p class="mb-3 ps-4">{{ producto.categoria }}</p>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-info-circle text-primary me-2"></i>
+                                        <span class="fw-bold text-muted">Descripción: 📝</span>
+                                    </div>
+                                    <p class="mb-3 ps-4">
+                                        {{ producto.descripcion|default:"Sin descripción disponible 🤷‍♀️" }}
+                                    </p>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-coin text-success me-2"></i>
+                                        <span class="fw-bold text-muted">Precio (IVA inc.): 💶</span>
+                                    </div>
+                                    <p class="mb-3 ps-4 text-success h5">
+                                        {{ producto.precio|floatformat:2 }} € 
+                                        {% if producto.descuento > 0 %}
+                                            <span class="badge bg-danger ms-2">-{{ producto.descuento }}% 🏷️</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-cash text-warning me-2"></i>
+                                        <span class="fw-bold text-muted">Precio sin IVA: 💰</span>
+                                    </div>
+                                    <p class="mb-3 ps-4 text-warning h5">{{ precio_sin_iva|floatformat:2 }} €</p>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-box-seam text-info me-2"></i>
+                                        <span class="fw-bold text-muted">Stock: 📦</span>
+                                    </div>
+                                    <p class="mb-3 ps-4 
+                                        {% if producto.stock <= 5 %}text-danger{% elif producto.stock <= 10 %}text-warning{% else %}text-success{% endif %}">
+                                        {{ producto.stock }} unidades 
+                                        {% if producto.stock <= 5 %}
+                                            <span class="badge bg-warning ms-2">¡Últimas unidades! 🚨</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-qr-code text-primary me-2"></i>
+                                        <span class="fw-bold text-muted">Código QR: 🔲</span>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#qrModal">
+                                        <i class="bi bi-qr-code-scan me-1"></i> Ver Código QR
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-center mt-4 gap-3">
+                <a href="{% url 'listar_productos' %}" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-arrow-left me-1"></i> Volver a la lista 🔙
+                </a>
+                {% if producto.stock > 0 %}
+                    <button class="btn btn-primary btn-lg add-to-cart-btn" data-product-id="{{ producto.id }}">
+                        <i class="bi bi-cart-plus me-1"></i> Añadir al carrito 🛒
+                    </button>
+                {% else %}
+                    <button class="btn btn-secondary btn-lg" disabled>
+                        <i class="bi bi-cart-x me-1"></i> Producto agotado 🚫
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Code Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="qrModalLabel">Código QR del Producto 🔲</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="{{ producto.qr_code_url }}" alt="QR Code" class="img-fluid mx-auto qr-code-image" style="max-width: 300px;">
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar 🚪</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Large Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-md-down">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="imageModalLabel">{{ producto.nombre_producto }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="{{ producto.imagen_url }}" alt="Imagen del producto" class="img-fluid large-product-image" style="max-height: 80vh; object-fit: contain;">
+            </div>
+            <div class="modal-footer">
+                <a href="{{ producto.imagen_url }}" download class="btn btn-primary">
+                    <i class="bi bi-download me-1"></i> Descargar Imagen 📥
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    /* Animate.css for animations */
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+
+    .product-detail-container {
+        background-color: #f8f9fa;
+    }
+
+    .product-image-wrapper .image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .product-image {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    .product-image:hover {
+        transform: scale(1.05);
+    }
+
+    .image-overlay {
+        opacity: 0;
+        background-color: rgba(0,0,0,0.3);
+        transition: opacity 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .product-image-wrapper:hover .image-overlay {
+        opacity: 1;
+    }
+
+    .no-image-placeholder {
+        background-color: #f1f3f5;
+        border: 2px dashed #ced4da;
+        border-radius: 10px;
+    }
+
+    .add-to-cart-btn {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .add-to-cart-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .qr-code-image {
+        max-width: 300px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .large-product-image {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .product-detail-container {
+            padding: 1rem !important;
+        }
+
+        .btn-lg {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
+<!-- Optional JavaScript for Enhanced Interactivity -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add to cart functionality
+        const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.dataset.productId;
+                
+                // Simple animation
+                this.classList.add('animate__animated', 'animate__pulse');
+                
+                // Simulated cart addition (replace with actual cart logic)
+                alert(`Producto añadido al carrito 🛒\nID del producto: ${productId}`);
+                
+                // Remove animation class after it completes
+                setTimeout(() => {
+                    this.classList.remove('animate__animated', 'animate__pulse');
+                }, 1000);
+            });
+        });
+
+        // Image hover effects
+        const productImages = document.querySelectorAll('.product-image');
+        productImages.forEach(img => {
+            img.addEventListener('mouseenter', function() {
+                this.classList.add('animate__animated', 'animate__pulse');
+            });
+            img.addEventListener('mouseleave', function() {
+                this.classList.remove('animate__animated', 'animate__pulse');
+            });
+        });
+    });
+</script>
+{% endblock %}

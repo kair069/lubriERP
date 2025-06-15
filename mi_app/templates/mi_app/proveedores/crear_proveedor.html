@@ -1,0 +1,22 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Nuevo Proveedor</h1>
+
+    {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <a href="{% url 'listar_proveedores' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

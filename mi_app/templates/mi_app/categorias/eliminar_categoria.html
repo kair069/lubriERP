@@ -1,0 +1,13 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Eliminar Categoría{% endblock %}
+
+{% block content %}
+    <h1>Eliminar Categoría</h1>
+    <p>¿Estás seguro de que deseas eliminar la categoría "{{ categoria.nombre_categoria }}"?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+    </form>
+    <a href="{% url 'listar_categorias' %}" class="btn btn-secondary mt-3">Cancelar</a>
+{% endblock %}

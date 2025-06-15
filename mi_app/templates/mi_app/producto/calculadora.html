@@ -1,0 +1,281 @@
+{% extends 'mi_app/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Filtros (columna izquierda) -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" id="filtroForm">
+                        <div class="mb-3">
+                            {{ filtro_form.busqueda.label_tag }}
+                            {{ filtro_form.busqueda }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ filtro_form.categoria.label_tag }}
+                            {{ filtro_form.categoria }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ filtro_form.marca.label_tag }}
+                            {{ filtro_form.marca }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ filtro_form.tipo_motor.label_tag }}
+                            {{ filtro_form.tipo_motor }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>Rango de precio:</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    {{ filtro_form.precio_min }}
+                                </div>
+                                <div class="col-6">
+                                    {{ filtro_form.precio_max }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
+                            <a href="{% url 'calculadora_productos' %}" class="btn btn-outline-secondary">Limpiar filtros</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Resumen de selección (carrito) -->
+            <div class="card sticky-top" style="top: 1rem;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Productos Seleccionados (<span id="seleccionadosCount">{{ productos_seleccionados.count }}</span>)</h5>
+                </div>
+                <div class="card-body">
+                    <div id="listaSeleccionados" style="max-height: 300px; overflow-y: auto;">
+                        {% if productos_seleccionados %}
+                        <ul class="list-group">
+                            {% for producto in productos_seleccionados %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span>{{ producto.nombre_producto }}</span>
+                                    <div class="text-muted small">{{ producto.marca }}</div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary rounded-pill me-2">${{ producto.precio }}</span>
+                                    <form method="post" class="eliminar-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="accion" value="eliminar">
+                                        <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                                        <button type="submit" class="btn btn-sm btn-danger btn-eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-center text-muted">No hay productos seleccionados</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h5 class="fw-bold text-end">Total: $<span id="totalPrecio">{{ total|default:"0.00" }}</span></h5>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <form method="post" id="limpiarForm">
+                            {% csrf_token %}
+                            <input type="hidden" name="accion" value="limpiar">
+                            <button type="submit" class="btn btn-warning btn-block w-100">Limpiar selección</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lista de productos (columna derecha) -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Productos disponibles</h5>
+                    <span>Mostrando {{ productos.start_index }} - {{ productos.end_index }} de {{ productos.paginator.count }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+                        {% for producto in productos %}
+                        <div class="col">
+                            <div class="card h-100 producto-card">
+                                {% if producto.imagen_url %}
+                                <img src="{{ producto.imagen_url }}" class="card-img-top" alt="{{ producto.nombre_producto }}" style="height: 150px; object-fit: cover;">
+                                {% else %}
+                                <div class="card-img-top bg-light text-center py-5">Sin imagen</div>
+                                {% endif %}
+                                
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ producto.nombre_producto }}</h6>
+                                    <div class="small text-muted mb-2">
+                                        <div>{{ producto.marca }}</div>
+                                        <div>{{ producto.categoria }}</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">${{ producto.precio }}</span>
+                                        <form method="post" class="agregar-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="accion" value="agregar">
+                                            <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                                            <button type="submit" class="btn btn-sm btn-success btn-agregar"
+                                                    {% if producto in productos_seleccionados %}disabled{% endif %}>
+                                                <i class="bi bi-plus-circle"></i> Agregar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center py-5">
+                            <p class="text-muted">No se encontraron productos con los filtros seleccionados.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Paginación -->
+                    {% if productos.paginator.num_pages > 1 %}
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if productos.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&laquo; Primera</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ productos.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Anterior</a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for i in productos.paginator.page_range %}
+                                {% if productos.number == i %}
+                                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                                {% elif i > productos.number|add:'-3' and i < productos.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if productos.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ productos.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Siguiente</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ productos.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Última &raquo;</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const agregarForms = document.querySelectorAll('.agregar-form');
+    const eliminarForms = document.querySelectorAll('.eliminar-form');
+    const limpiarForm = document.getElementById('limpiarForm');
+    
+    // Función para actualizar interfaz en base a respuesta JSON
+    function actualizarInterfaz(data) {
+        document.getElementById('totalPrecio').textContent = data.total;
+        document.getElementById('seleccionadosCount').textContent = data.count;
+        
+        // Actualizar lista de productos seleccionados
+        const listaSeleccionados = document.getElementById('listaSeleccionados');
+        
+        if (data.count > 0) {
+            let listHTML = '<ul class="list-group">';
+            data.productos.forEach(producto => {
+                listHTML += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <span>${producto.nombre}</span>
+                        <div class="text-muted small"></div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-primary rounded-pill me-2">$${producto.precio}</span>
+                        <form method="post" class="eliminar-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="accion" value="eliminar">
+                            <input type="hidden" name="producto_id" value="${producto.id}">
+                            <button type="submit" class="btn btn-sm btn-danger btn-eliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </li>`;
+            });
+            listHTML += '</ul>';
+            listaSeleccionados.innerHTML = listHTML;
+            
+            // Volver a agregar event listeners a los nuevos botones
+            document.querySelectorAll('.eliminar-form').forEach(form => {
+                form.addEventListener('submit', handleSubmit);
+            });
+        } else {
+            listaSeleccionados.innerHTML = '<p class="text-center text-muted">No hay productos seleccionados</p>';
+        }
+        
+        // Actualizar botones de agregar (habilitar/deshabilitar)
+        document.querySelectorAll('.agregar-form').forEach(form => {
+            const productoId = form.querySelector('input[name="producto_id"]').value;
+            const boton = form.querySelector('button');
+            const estaSeleccionado = data.productos.some(p => p.id == productoId);
+            boton.disabled = estaSeleccionado;
+        });
+    }
+    
+    // Manejar envío de formularios con AJAX
+    function handleSubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        
+        fetch(form.action || window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            actualizarInterfaz(data);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    // Agregar manejadores de eventos
+    agregarForms.forEach(form => {
+        form.addEventListener('submit', handleSubmit);
+    });
+    
+    eliminarForms.forEach(form => {
+        form.addEventListener('submit', handleSubmit);
+    });
+    
+    limpiarForm.addEventListener('submit', handleSubmit);
+});
+</script>
+{% endblock %}
+{% endblock %}

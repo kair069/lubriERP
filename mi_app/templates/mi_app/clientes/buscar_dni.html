@@ -1,0 +1,35 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Buscar Cliente por DNI</h2>
+
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.dni.label_tag }}
+            {{ form.dni }}
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar y Guardar</button>
+        <a href="{% url 'lista_clientes' %}" class="btn btn-secondary">Ver Clientes</a>
+    </form>
+
+    {% if messages %}
+        <div class="mt-3">
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-warning{% endif %}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let dniField = document.getElementById("id_dni");
+        if (dniField) {
+            dniField.removeAttribute("disabled");  // Habilitamos el campo DNI en la vista
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,245 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}{% if object %}Editar Pedido 📋{% else %}Nuevo Pedido ➕{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-5-theme/1.3.0/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<style>
+    .form-section {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        padding: 2rem;
+    }
+    
+    .form-header {
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+    }
+    
+    .select2-container--bootstrap-5 .select2-selection {
+        height: calc(3.5rem + 2px);
+        padding: 0.875rem 0.75rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .help-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    .required-label::after {
+        content: '*';
+        color: red;
+        margin-left: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-section">
+                <div class="form-header">
+                    <h2 class="mb-0">
+                        {% if object %}
+                            <i class="fas fa-edit me-2 text-primary"></i>Editar Pedido #{{ object.id }} 📝
+                        {% else %}
+                            <i class="fas fa-plus-circle me-2 text-success"></i>Nuevo Pedido ➕
+                        {% endif %}
+                    </h2>
+                </div>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="{{ form.proveedor.id_for_label }}" class="form-label required-label">
+                                    Proveedor 🏢
+                                </label>
+                                {{ form.proveedor }}
+                                {% if form.proveedor.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.proveedor.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="{{ form.proveedor_search.id_for_label }}" class="form-label">
+                                    Buscar Proveedor 🔍
+                                </label>
+                                {{ form.proveedor_search }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.fecha_pedido.id_for_label }}" class="form-label required-label">
+                                    Fecha de Pedido 📅
+                                </label>
+                                {{ form.fecha_pedido }}
+                                {% if form.fecha_pedido.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.fecha_pedido.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.fecha_entrega.id_for_label }}" class="form-label required-label">
+                                    Fecha de Entrega 🚚
+                                </label>
+                                {{ form.fecha_entrega }}
+                                {% if form.fecha_entrega.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.fecha_entrega.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="{{ form.estado_pago.id_for_label }}" class="form-label required-label">
+                                    Estado de Pago 💰
+                                </label>
+                                {{ form.estado_pago }}
+                                {% if form.estado_pago.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.estado_pago.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                            Descripción 📝
+                        </label>
+                        {{ form.descripcion }}
+                        {% if form.descripcion.help_text %}
+                            <div class="help-text">
+                                {{ form.descripcion.help_text }}
+                            </div>
+                        {% endif %}
+                        {% if form.descripcion.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.descripcion.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="{% url 'pedido_list' %}" class="btn btn-secondary me-2">
+                            <i class="fas fa-times me-2"></i>Cancelar ❌
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if object %}
+                                <i class="fas fa-save me-2"></i>Actualizar Pedido 💾
+                            {% else %}
+                                <i class="fas fa-plus me-2"></i>Crear Pedido ✅
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar Select2 para proveedores
+    $('#{{ form.proveedor.id_for_label }}').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Seleccione un proveedor 🏢',
+        allowClear: true,
+        ajax: {
+            url: '/api/proveedores/',  // Endpoint para búsqueda de proveedores
+            dataType: 'json',
+            delay: 250,
+            processResults: function (data) {
+                return {
+                    results: data.map(function(proveedor) {
+                        return {
+                            id: proveedor.id,
+                            text: proveedor.nombre_proveedor,
+                            extra_info: proveedor.contacto
+                        };
+                    })
+                };
+            },
+            cache: true
+        },
+        templateResult: function(state) {
+            if (!state.extra_info) return state.text;
+            return $(`
+                <div class="d-flex justify-content-between">
+                    <span>${state.text}</span>
+                    <small class="text-muted">${state.extra_info}</small>
+                </div>
+            `);
+        }
+    });
+
+    // Inicializar Select2 para estado de pago
+    $('#{{ form.estado_pago.id_for_label }}').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Seleccione un estado de pago 💰',
+        minimumResultsForSearch: Infinity
+    });
+
+    // Búsqueda en tiempo real de proveedores
+    $('#{{ form.proveedor_search.id_for_label }}').on('keyup', function() {
+        const searchTerm = $(this).val();
+        
+        // Filtrar proveedores en el select existente
+        $('#{{ form.proveedor.id_for_label }} option').each(function() {
+            const proveedorText = $(this).text().toLowerCase();
+            const match = proveedorText.includes(searchTerm.toLowerCase());
+            $(this).toggle(match);
+        });
+        
+        // Actualizar Select2
+        $('#{{ form.proveedor.id_for_label }}').select2('close');
+    });
+
+    // Validación de fechas
+    const fechaPedido = document.getElementById('{{ form.fecha_pedido.id_for_label }}');
+    const fechaEntrega = document.getElementById('{{ form.fecha_entrega.id_for_label }}');
+
+    // Establecer fecha mínima de pedido como hoy   
+    const today = new Date().toISOString().split('T')[0];
+    fechaPedido.min = today;
+
+    // Validar que fecha de entrega no sea anterior a fecha de pedido
+    fechaPedido.addEventListener('change', function() {
+        fechaEntrega.min = this.value;
+        if (fechaEntrega.value && fechaEntrega.value < this.value) {
+            fechaEntrega.value = this.value;
+        }
+    });
+});
+</script>
+{% endblock %}

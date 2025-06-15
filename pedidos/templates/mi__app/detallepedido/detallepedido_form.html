@@ -1,0 +1,156 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}📝 {% if object %}Editar Detalle del Pedido{% else %}Nuevo Detalle del Pedido{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">📝 {% if object %}Editar Detalle del Pedido{% else %}Nuevo Detalle del Pedido{% endif %}</h2>
+    </div>
+    <div class="card-body">
+      <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          <label for="id_producto" class="form-label">📦 Producto</label>
+          {{ form.producto }}
+        </div>
+        
+        <!-- Campo de Cantidad con botones + y - -->
+        <div class="mb-3">
+          <label for="id_cantidad" class="form-label">🔢 Cantidad</label>
+          <div class="input-group">
+            <button type="button" class="btn btn-outline-secondary" id="decrementCantidad">➖</button>
+            {{ form.cantidad }}
+            <button type="button" class="btn btn-outline-secondary" id="incrementCantidad">➕</button>
+          </div>
+        </div>
+
+        <!-- Campo de Precio con formato automático -->
+        <div class="mb-3">
+          <label for="id_precio_unitario" class="form-label">💲 Precio Unitario</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            {{ form.precio_unitario }}
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-success px-4">
+            💾 {% if object %}Actualizar{% else %}Crear{% endif %}
+          </button>
+          
+          <a href="{% if object %}{% url 'pedido_combined_detail' object.pedido.id %}{% else %}{% url 'pedido_combined_detail' pedido_id %}{% endif %}" 
+             class="btn btn-secondary px-4">
+            ❌ Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Agregar jQuery y Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+<!-- Activar Select2 en el campo de producto -->
+<script>
+  $(document).ready(function() {
+      // Función para cargar precios de productos via AJAX
+      function cargarPrecioProducto() {
+          $('#id_producto').on('change', function() {
+              let productoId = $(this).val();
+              if (productoId) {
+                  $.ajax({
+                      url: '{% url "obtener_precio_producto" %}',
+                      data: {
+                          'producto_id': productoId
+                      },
+                      dataType: 'json',
+                      success: function(data) {
+                          if (data.success) {
+                              $('#id_precio_unitario').val(data.precio.toFixed(2));
+                          } else {
+                              $('#id_precio_unitario').val('');
+                              console.log('No se encontró el precio del producto');
+                          }
+                      },
+                      error: function() {
+                          console.log('Error al obtener el precio');
+                      }
+                  });
+              }
+          });
+      }
+
+      // Inicializar Select2
+      $('#id_producto').select2({
+          placeholder: "🔍 Seleccione un producto...",
+          allowClear: true,
+          width: '100%'
+      });
+
+      // Llamar a la función para cargar precios
+      cargarPrecioProducto();
+
+      // Botones para aumentar/disminuir cantidad
+      $("#decrementCantidad").click(function() {
+          let cantidad = parseInt($("#id_cantidad").val()) || 1;
+          if (cantidad > 1) {
+              $("#id_cantidad").val(cantidad - 1);
+          }
+      });
+
+      $("#incrementCantidad").click(function() {
+          let cantidad = parseInt($("#id_cantidad").val()) || 1;
+          $("#id_cantidad").val(cantidad + 1);
+      });
+
+      // Formatear precio unitario en tiempo real
+      $("#id_precio_unitario").on("input", function() {
+          let valor = $(this).val().replace(/[^0-9.]/g, ''); // Solo números y punto decimal
+          
+          // Limitar a dos decimales
+          let partes = valor.split('.');
+          if (partes.length > 2) {
+              valor = partes[0] + '.' + partes[1].slice(0, 2);
+          }
+          
+          $(this).val(valor);
+      });
+  });
+</script>
+
+<style>
+  .card {
+    border-radius: 12px;
+  }
+
+  .btn {
+    border-radius: 8px;
+  }
+
+  .form-label {
+    font-weight: bold;
+  }
+
+  .select2-container--default .select2-selection--single {
+    border-radius: 8px;
+    height: 38px;
+    padding: 5px;
+  }
+
+  .input-group {
+    display: flex;
+    align-items: center;
+  }
+
+  .input-group-text {
+    background-color: #f8f9fa;
+  }
+</style>
+
+{% endblock %}

@@ -1,0 +1,206 @@
+{% extends 'mi_app/base.html' %}
+
+{% load static %}
+
+{% block title %}Editar Detalle de Venta{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .product-info {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 5px solid #4a6fdc;
+    }
+    .product-image {
+        max-height: 120px;
+        max-width: 100%;
+        object-fit: contain;
+        margin-bottom: 15px;
+    }
+    .edit-card {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: none;
+    }
+    .form-control:focus {
+        border-color: #4a6fdc;
+        box-shadow: 0 0 0 0.2rem rgba(74, 111, 220, 0.25);
+    }
+    .btn-primary {
+        background-color: #4a6fdc;
+        border-color: #3f5fc5;
+    }
+    .btn-primary:hover {
+        background-color: #3f5fc5;
+        border-color: #3452b0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="edit-container">
+        <!-- Mostrar mensajes de Django si existen -->
+        {% if messages %}
+        <div class="row mb-3">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'listar_ventas' %}">Ventas</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'listar_detalles_venta' venta_id=venta.id %}">Detalles de Venta #{{ venta.numero_documento }}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Editar Detalle</li>
+                    </ol>
+                </nav>
+                
+                <h3 class="mb-4">Editar Detalle de Venta</h3>
+                
+                <div class="product-info">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            {% if producto.imagen_url %}
+                                <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre_producto }}" class="product-image">
+                            {% else %}
+                                <i class="fas fa-box fa-4x text-muted"></i>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-9">
+                            <h4>{{ producto.nombre_producto }}</h4>
+                            <p class="text-muted">
+                                {{ producto.marca.nombre_marca }} - 
+                                {{ producto.categoria.nombre_categoria }} - 
+                                {{ producto.tipo_motor.tipo_motor }}
+                            </p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Precio Sugerido:</strong> S/ {{ producto.precio }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p>
+                                        <strong>Stock Disponible:</strong> 
+                                        <span class="badge {% if producto.stock > 10 %}bg-success{% elif producto.stock > 5 %}bg-warning{% elif producto.stock > 0 %}bg-danger{% else %}bg-secondary{% endif %}">
+                                            {{ producto.stock }} unidades
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card edit-card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Modificar información</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="id_cantidad" class="form-label">Cantidad</label>
+                                    <input type="number" name="cantidad" value="{{ form.cantidad.value }}" 
+                                           class="form-control {% if form.cantidad.errors %}is-invalid{% endif %}" 
+                                           id="id_cantidad" min="1" max="{{ producto.stock|add:detalle.cantidad }}">
+                                    {% if form.cantidad.errors %}
+                                        <div class="invalid-feedback">
+                                            {{ form.cantidad.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        Cantidad original: {{ detalle.cantidad }} unidades
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="id_precio_unitario" class="form-label">Precio Unitario (S/)</label>
+                                    <input type="number" name="precio_unitario" value="{{ form.precio_unitario.value }}" 
+                                           class="form-control {% if form.precio_unitario.errors %}is-invalid{% endif %}" 
+                                           id="id_precio_unitario" min="0.01" step="0.01">
+                                    {% if form.precio_unitario.errors %}
+                                        <div class="invalid-feedback">
+                                            {{ form.precio_unitario.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        Precio original: S/ {{ detalle.precio_unitario }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label">Subtotal Calculado:</label>
+                                    <h4 id="subtotal-preview">S/ {{ detalle.subtotal }}</h4>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end mt-4">
+                                <a href="{% url 'listar_detalles_venta' venta_id=venta.id %}" class="btn btn-outline-secondary me-2">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Calcular subtotal en tiempo real
+        function updateSubtotal() {
+            var cantidad = parseFloat($('#id_cantidad').val()) || 0;
+            var precio = parseFloat($('#id_precio_unitario').val()) || 0;
+            var subtotal = cantidad * precio;
+            $('#subtotal-preview').text('S/ ' + subtotal.toFixed(2));
+        }
+        
+        $('#id_cantidad, #id_precio_unitario').on('input', updateSubtotal);
+        
+        // Validación antes de enviar
+        $('form').on('submit', function(e) {
+            var cantidad = parseInt($('#id_cantidad').val());
+            var maxStock = parseInt($('#id_cantidad').attr('max'));
+            
+            if (cantidad <= 0) {
+                alert('La cantidad debe ser mayor a cero');
+                e.preventDefault();
+                return false;
+            }
+            
+            if (cantidad > maxStock) {
+                alert('La cantidad excede el stock disponible (' + maxStock + ' unidades)');
+                e.preventDefault();
+                return false;
+            }
+            
+            return true;
+        });
+    });
+</script>
+{% endblock %}

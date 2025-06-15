@@ -1,0 +1,248 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Estilos para normalizar los botones y otros elementos -->
+    <style>
+  /* Estilo para los botones personalizados (usando la clase .btn-purple) */
+  .btn-purple {
+    background-color: #6f42c1;
+    color: #fff;
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .btn-purple:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Estilo para el label que muestra el spinner */
+  #loadingLabel {
+    display: inline-flex;
+    align-items: center;
+  }
+</style>
+
+
+    <!-- Bloque de estilos centralizados -->
+
+
+<div class="row g-3">
+  <div class="col-md-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <a href="{% url 'crear_producto' %}" class="btn btn-purple btn-lg shadow-lg border-0 rounded-pill d-flex align-items-center">
+        <i class="fas fa-plus-circle me-2"></i> Nuevo Producto
+      </a>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+  <form id="exportForm" action="{% url 'exportar_productos_excel' %}" method="get" class="d-inline-block" onsubmit="return handleExport(event)">
+    <button type="submit" class="btn btn-success w-100 hover-shadow" id="exportButton">
+      Exportar a Excel
+    </button>
+    <span id="loadingLabel" class="ms-3 d-none">
+      <div class="spinner-border text-info spinner-border-sm" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div> 
+      Generando archivo...
+    </span>
+  </form>
+</div>
+
+</div>
+
+
+    <!-- JavaScript para mostrar el spinner al enviar el formulario -->
+    <script>
+        // Función que intercepta el envío del formulario y usa AJAX
+        function handleExport(event) {
+            event.preventDefault();  // Previene el comportamiento por defecto (recarga de página)
+            
+            // Muestra el spinner
+            document.getElementById('loadingLabel').classList.remove('d-none');
+            document.getElementById('exportButton').disabled = true;  // Deshabilitar el botón
+            
+            // Usamos fetch para enviar la solicitud sin recargar la página
+            fetch(event.target.action, {
+                method: 'GET',  // O 'POST' dependiendo de cómo esté configurado tu formulario
+                headers: {
+                    'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',  // Aseguramos que la respuesta sea un archivo Excel
+                }
+            })
+            .then(response => response.blob())  // Recibe el archivo Excel como un blob
+            .then(blob => {
+                // Crea un enlace para descargar el archivo
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.href = url;
+                link.download = 'productos.xlsx';  // Nombre del archivo descargado
+                link.click();  // Simula el clic para iniciar la descarga
+                
+                // Ocultar el spinner y habilitar el botón nuevamente
+                document.getElementById('loadingLabel').classList.add('d-none');
+                document.getElementById('exportButton').disabled = false;
+            })
+            .catch(error => {
+                console.error('Error durante la exportación:', error);
+                document.getElementById('loadingLabel').classList.add('d-none');
+                document.getElementById('exportButton').disabled = false;
+            });
+        }
+    </script>
+
+    <form method="GET" action="" class="mb-4">
+        <div class="row g-3">
+            <!-- Filtro por nombre -->
+            <div class="col-md-3">
+                <div class="form-floating">
+                    <input type="text" name="nombre" id="nombreFiltro" class="form-control" placeholder="Buscar por nombre" value="{{ nombre }}">
+                    <label for="nombreFiltro">Nombre del producto</label>
+                </div>
+            </div>
+            
+            <!-- Filtro por marca -->
+            <div class="col-md-3">
+                <div class="form-floating">
+                    <select name="marca" id="marcaFiltro" class="form-select">
+                        <option value="">Todas las marcas</option>
+                        {% for marca in marcas %}
+                            <option value="{{ marca.nombre_marca }}" {% if marca.nombre_marca == marca %}selected{% endif %}>
+                                {{ marca.nombre_marca }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <label for="marcaFiltro">Marca</label>
+                </div>
+            </div>
+
+            <!-- Filtro por código QR -->
+            <div class="col-md-3">
+                <div class="form-floating">
+                    <input type="text" name="qr_code" id="qrFiltro" class="form-control" placeholder="Buscar por QR Code" value="{{ qr_code }}">
+                    <label for="qrFiltro">QR Code</label>
+                </div>
+            </div>
+
+            <!-- Filtro por categoría -->
+            <div class="col-md-3">
+                <div class="form-floating">
+                    <select name="categoria" id="categoriaFiltro" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.nombre_categoria }}" {% if categoria.nombre_categoria == categoria %}selected{% endif %}>
+                                {{ categoria.nombre_categoria }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <label for="categoriaFiltro">Categoría</label>
+                </div>
+            </div>
+
+            <!-- Botón de filtrar -->
+            <div class="col-auto">
+                <button type="submit" class="btn btn-purple btn-lg shadow-lg border-0 rounded-pill d-flex align-items-center">
+                    <i class="fas fa-filter me-2"></i> Filtrar
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabla de Productos -->
+    <table class="table table-bordered table-hover table-striped" style="border-color: #6f42c1;">
+        <thead style="background-color: rgb(19, 191, 91); color: white;">
+            <tr>
+                <th>Nombre</th>
+                <th class="d-none d-sm-table-cell">Marca</th>
+                <th class="d-none d-sm-table-cell">Categoría</th>
+                <th class="d-none d-sm-table-cell">Tipo de Motor</th>
+                <th class="d-none d-sm-table-cell">Descripción</th>
+                <th class="d-none d-sm-table-cell">Imagen</th>
+                <th>QR Code</th>
+                <th class="d-none d-sm-table-cell">Precio</th>
+                <th class="d-none d-sm-table-cell">Stock</th>
+                <th class="d-none d-sm-table-cell">Última Modificación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.nombre_producto }}</td>
+                <td class="d-none d-sm-table-cell">{{ producto.marca }}</td>
+                <td class="d-none d-sm-table-cell">{{ producto.categoria }}</td>
+                <td class="d-none d-sm-table-cell">{{ producto.tipo_motor }}</td>
+                <td class="d-none d-sm-table-cell">{{ producto.descripcion|default:"Sin descripción" }}</td>
+                <td class="d-none d-sm-table-cell">
+                    {% if producto.imagen_url %}
+                        <img src="{{ producto.imagen_url }}" alt="Imagen del producto" class="img-thumbnail" width="100" style="background-color: white;">
+                    {% else %}
+                        <img src="path/to/default-image.jpg" alt="Imagen no disponible" class="img-thumbnail" width="100" style="background-color: white;">
+                    {% endif %}
+                </td>
+                <td>
+                    {% if producto.qr_code %}
+                        <span class="badge bg-primary text-wrap">{{ producto.qr_code }}</span>
+                    {% else %}
+                        No disponible
+                    {% endif %}
+                </td>
+                <td class="d-none d-sm-table-cell">{{ producto.precio|floatformat:2 }}</td>
+                <td class="d-none d-sm-table-cell">{{ producto.stock }}</td>
+                <td class="d-none d-sm-table-cell">{{ producto.fecha_modificacion|date:"d/m/Y H:i" }}</td>
+                <td class="d-flex flex-wrap gap-2 justify-content-center">
+                    <a href="{% url 'detalle_producto' producto.pk %}" class="btn btn-info btn-sm rounded-pill px-3 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-info-circle"></i> <span class="d-none d-md-inline">Detalles</span>
+                    </a>
+                    <a href="{% url 'editar_producto' producto.pk %}" class="btn btn-warning btn-sm rounded-pill px-3 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-edit"></i> <span class="d-none d-md-inline">Editar</span>
+                    </a>
+                    <a href="{% url 'eliminar_producto' producto.pk %}" class="btn btn-danger btn-sm rounded-pill px-3 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-trash-alt"></i> <span class="d-none d-md-inline">Eliminar</span>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="11" class="text-center">No se encontraron productos</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if productos.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if nombre %}&nombre={{ nombre }}{% endif %}{% if marca %}&marca={{ marca }}{% endif %}{% if qr_code %}&qr_code={{ qr_code }}{% endif %}" aria-label="Primera">
+                        <span aria-hidden="true">&laquo;&laquo;</span> Primera
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.previous_page_number }}{% if nombre %}&nombre={{ nombre }}{% endif %}{% if marca %}&marca={{ marca }}{% endif %}{% if qr_code %}&qr_code={{ qr_code }}{% endif %}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span> Anterior
+                    </a>
+                </li>
+            {% endif %}
+            <li class="page-item active">
+                <span class="page-link">
+                    Página {{ productos.number }} de {{ productos.paginator.num_pages }}
+                </span>
+            </li>
+            {% if productos.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.next_page_number }}{% if nombre %}&nombre={{ nombre }}{% endif %}{% if marca %}&marca={{ marca }}{% endif %}{% if qr_code %}&qr_code={{ qr_code }}{% endif %}" aria-label="Siguiente">
+                        Siguiente <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.paginator.num_pages }}{% if nombre %}&nombre={{ nombre }}{% endif %}{% if marca %}&marca={{ marca }}{% endif %}{% if qr_code %}&qr_code={{ qr_code }}{% endif %}" aria-label="Última">
+                        Última <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

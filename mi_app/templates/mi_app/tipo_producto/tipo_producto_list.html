@@ -1,0 +1,30 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Lista de Tipos de Producto{% endblock %}
+
+{% block content %}
+    <h1>Lista de Tipos de Producto</h1>
+    
+    <!-- Botón para crear un nuevo tipo de producto -->
+    <a href="{% url 'tipo_productos_crear' %}" class="btn btn-success mb-3">Crear Nuevo Tipo de Producto</a>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre del Tipo de Producto</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tipo_producto in tipo_productos %}
+                <tr>
+                    <td>{{ tipo_producto.nombre_tipo_producto }}</td>
+                    <td>
+                        <a href="{% url 'tipo_productos_editar' tipo_producto.pk %}" class="btn btn-warning">Editar</a>
+                        <a href="{% url 'tipo_productos_eliminar' tipo_producto.pk %}" class="btn btn-danger">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

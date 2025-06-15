@@ -1,0 +1,10 @@
+{% extends 'mi_app/base.html' %}
+
+{% block content %}
+  <h2>¿Estás seguro de eliminar este detalle de compra?</h2>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a href="{% url 'listar_detalles' compra.id %}" class="btn btn-link">Cancelar</a>
+  </form>
+{% endblock %}

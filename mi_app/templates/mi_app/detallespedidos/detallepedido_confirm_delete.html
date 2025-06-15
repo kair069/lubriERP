@@ -1,0 +1,14 @@
+{% extends 'mi_app/base.html' %}
+{% block title %}Eliminar Detalle{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Eliminar Detalle del Pedido</h1>
+<div class="alert alert-danger" role="alert">
+    ¿Está seguro que desea eliminar el detalle: <strong>{{ detalle.pedido.numero_pedido }} - {{ detalle.producto.nombre_producto }}</strong>?
+</div>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a href="{% url 'detallepedido_list' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
